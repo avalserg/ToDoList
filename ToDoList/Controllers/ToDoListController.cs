@@ -10,19 +10,19 @@ namespace ToDoList.Controllers
         {
             new Model.ToDoList()
             {
-                Id = 1, IsDone = true, Label = "Проверить почту", CreatedDate = DateTime.Now, UpdateDate = default
+                Id = 1, IsDone = true, Label = "РџСЂРѕРІРµСЂРёС‚СЊ РїРѕС‡С‚Сѓ", CreatedDate = DateTime.Now, UpdateDate = default
             },
             new Model.ToDoList()
             {
-                Id = 2, IsDone = false, Label = "Сходить в магазин", CreatedDate = DateTime.Now, UpdateDate = default
+                Id = 2, IsDone = false, Label = "РЎС…РѕРґРёС‚СЊ РІ РјР°РіР°Р·РёРЅ", CreatedDate = DateTime.Now, UpdateDate = default
             }, 
             new Model.ToDoList()
             {
-                Id = 3, IsDone = false, Label = "Выгулять собаку", CreatedDate = DateTime.Now, UpdateDate = default
+                Id = 3, IsDone = false, Label = "Р’С‹РіСѓР»СЏС‚СЊ СЃРѕР±Р°РєСѓ", CreatedDate = DateTime.Now, UpdateDate = default
             }, 
             new Model.ToDoList()
             {
-                Id = 4, IsDone = false, Label = "Сделать зарядку", CreatedDate = DateTime.Now, UpdateDate = default
+                Id = 4, IsDone = false, Label = "РЎРґРµР»Р°С‚СЊ Р·Р°СЂСЏРґРєСѓ", CreatedDate = DateTime.Now, UpdateDate = default
             },
         };
         private readonly ILogger<ToDoListController> _logger;
@@ -44,7 +44,7 @@ namespace ToDoList.Controllers
             var todos = Todos.OrderBy(t=>t.Id).Skip(offset).Take(limit).ToList();
             if (todos.Count == 0)
             {
-                return NotFound("Список дел отсутствует");
+                return NotFound("РЎРїРёСЃРѕРє РґРµР» РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚");
             }
             return Ok(todos);
         } 
@@ -54,7 +54,7 @@ namespace ToDoList.Controllers
             var todo = Todos.FirstOrDefault(t=>t.Id==id);
             if (todo == null)
             {
-                return NotFound("Запись с таким ID отсутствует");
+                return NotFound("Р—Р°РїРёСЃСЊ СЃ С‚Р°РєРёРј ID РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚");
             }
             return Ok(todo);
         } 
@@ -64,7 +64,7 @@ namespace ToDoList.Controllers
             var todo = Todos.FirstOrDefault(t=>t.Id==id);
             if (todo == null)
             {
-                return NotFound("Запись с таким ID отсутствует");
+                return NotFound("Р—Р°РїРёСЃСЊ СЃ С‚Р°РєРёРј ID РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚");
             }
 
             return Ok( new{ todo.Id,todo.IsDone} );
@@ -84,7 +84,7 @@ namespace ToDoList.Controllers
             var todo = Todos.SingleOrDefault(t => t.Id == id);
             if (todo == null)
             {
-                return NotFound("Такой записи не существует");
+                return NotFound("РўР°РєРѕР№ Р·Р°РїРёСЃРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
             }
             todo.IsDone = newToDo.IsDone;
             todo.Label = newToDo.Label;
@@ -99,7 +99,7 @@ namespace ToDoList.Controllers
             var todo = Todos.SingleOrDefault(t => t.Id == id);
             if (todo == null)
             {
-                return NotFound("Такой записи не существует");
+                return NotFound("РўР°РєРѕР№ Р·Р°РїРёСЃРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
             }
             todo.IsDone = isDone;
            
@@ -111,7 +111,7 @@ namespace ToDoList.Controllers
             var todo = Todos.SingleOrDefault(t => t.Id == id);
             if (todo == null)
             {
-                return NotFound("Такой записи не существует");
+                return NotFound("РўР°РєРѕР№ Р·Р°РїРёСЃРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
             }
             Todos.Remove(todo);
             return Ok(todo);
