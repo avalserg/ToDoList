@@ -25,12 +25,14 @@ namespace ToDoList.Controllers
                 Id = 4, IsDone = false, Label = "Сделать зарядку", CreatedDate = DateTime.Now, UpdateDate = default
             },
         };
+
         private readonly ILogger<ToDoListController> _logger;
 
         public ToDoListController(ILogger<ToDoListController> logger)
         {
             _logger = logger;
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -40,35 +42,41 @@ namespace ToDoList.Controllers
         [HttpGet]
         public IActionResult GetAllToDo( int offset, int limit = 5)
         {
-           
             var todos = Todos.OrderBy(t=>t.Id).Skip(offset).Take(limit).ToList();
             if (todos.Count == 0)
             {
-                return NotFound("Список дел отсутствует");
+                return NoContent();
             }
+
             return Ok(todos);
         } 
+
         [HttpGet("{id}")]
         public IActionResult GetToDoById(int id)
         {
             var todo = Todos.FirstOrDefault(t=>t.Id==id);
+
             if (todo == null)
             {
-                return NotFound("Запись с таким ID отсутствует");
+                return NotFound($"Запись с ID = {id} отсутствует");
             }
+
             return Ok(todo);
         } 
+
         [HttpGet("{id}/IsDone")]
         public IActionResult GetToDoByIdIsDone(int id)
         {
             var todo = Todos.FirstOrDefault(t=>t.Id==id);
+
             if (todo == null)
             {
-                return NotFound("Запись с таким ID отсутствует");
+                return NotFound($"Запись с ID = {id} отсутствует");
             }
 
             return Ok( new{ todo.Id,todo.IsDone} );
         }  
+
         [HttpPost]
         public IActionResult AddToDo(Model.ToDoList toDo)
         {
@@ -76,44 +84,53 @@ namespace ToDoList.Controllers
             toDo.CreatedDate= DateTime.UtcNow;
             
             Todos.Add(toDo);
+
             return Created($"todos/{toDo.Id}",toDo);
         }
+
         [HttpPut("{id}")]
         public IActionResult UpdateToDo(int id,Model.ToDoList newToDo)
         {
             var todo = Todos.SingleOrDefault(t => t.Id == id);
+
             if (todo == null)
             {
-                return NotFound("Такой записи не существует");
+                return NotFound($"Запись с ID = {id} отсутствует");
             }
+
             todo.IsDone = newToDo.IsDone;
             todo.Label = newToDo.Label;
             todo.UpdateDate= DateTime.UtcNow;
-
-
+            
             return Ok(todo);
         } 
+
         [HttpPatch("{id}/IsDone")]
         public IActionResult UpdateToDoIsDone(int id,bool isDone)
         {
             var todo = Todos.SingleOrDefault(t => t.Id == id);
+
             if (todo == null)
             {
-                return NotFound("Такой записи не существует");
+                return NotFound($"Запись с ID = {id} отсутствует");
             }
             todo.IsDone = isDone;
            
             return Ok(new { todo.Id, todo.IsDone });
         } 
+
         [HttpDelete("{id}")]
         public IActionResult RemoveToDo(int id)
         {
             var todo = Todos.SingleOrDefault(t => t.Id == id);
+
             if (todo == null)
             {
-                return NotFound("Такой записи не существует");
+                return NotFound($"Запись с ID = {id} отсутствует");
             }
+
             Todos.Remove(todo);
+
             return Ok(todo);
         }
 
