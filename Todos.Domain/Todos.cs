@@ -1,11 +1,12 @@
-namespace ToDoList.Model
+﻿namespace Todos.Domain
 {
-    public class ToDoList
+    public class Todos
     {
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public bool IsDone { get; set; }
         public string Label { get; set; } = string.Empty;
+        public int OwnerId { get; set; }
     }
 }
