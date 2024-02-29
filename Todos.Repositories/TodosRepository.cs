@@ -22,7 +22,7 @@
             },
         };
 
-        public IReadOnlyCollection<Domain.Todos> GetAllToDo(int? offset, int? ownerId, string? labelFreeText, int? limit = 10)
+        public IReadOnlyCollection<Domain.Todos> GetAllToDo(int? offset, int? ownerId, string? labelFreeText)
         {
             IEnumerable<Domain.Todos> todos = Todos;
 
@@ -36,17 +36,13 @@
                 todos = todos.Where(t => t.OwnerId.Equals(ownerId));
             }
 
-            todos = todos.OrderBy(t => t.Id);
+            todos = todos.OrderBy(t => t.Id).ToList();
 
             if (offset.HasValue)
             {
                 todos.Skip(offset.Value);
             }
-
-            limit ??= 10;
-
-            todos = todos.Take(limit.Value).ToList();
-
+            
             return (IReadOnlyCollection<Domain.Todos>)todos;
         }
         public Domain.Todos? GetToDoById(int id)
@@ -56,10 +52,17 @@
 
 
        
-        public Domain.Todos AddToDo(Domain.Todos toDo, int ownerId)
+        public Domain.Todos AddToDo(Domain.Todos toDo)
         {
-            toDo.Id = Todos.Max(todo => todo.Id) + 1;
-            toDo.OwnerId = ownerId;
+            if (Todos.Count==0)
+            {
+                toDo.Id = 1;
+            }
+            else
+            {
+                toDo.Id = Todos.Max(todo => todo.Id) + 1;
+            }
+            
             Todos.Add(toDo);
 
             return toDo;
@@ -70,28 +73,28 @@
         {
             var todo = Todos.SingleOrDefault(t => t.Id == id);
 
+            todo.UpdateDate = newToDo.UpdateDate;
+            todo.CreatedDate=newToDo.CreatedDate;
+            todo.OwnerId = newToDo.OwnerId;
+            todo.Label = newToDo.Label;
             todo.IsDone = newToDo.IsDone;
             todo.Label = newToDo.Label;
             
             return todo;
         }
 
-        public Domain.Todos UpdateToDoIsDone(int id, bool isDone)
+
+        public bool RemoveToDo(int id)
         {
             var todo = Todos.SingleOrDefault(t => t.Id == id);
 
-            todo.IsDone = isDone;
-
-            return todo;
-        }
-
-        public Domain.Todos RemoveToDo(int id)
-        {
-            var todo = Todos.SingleOrDefault(t => t.Id == id);
-
-            Todos.Remove(todo);
-
-            return todo;
+            if (todo != null)
+            {
+                Todos.Remove(todo);
+                return true;
+            }
+            
+            return false;
         }
     }
 }

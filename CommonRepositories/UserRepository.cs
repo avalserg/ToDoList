@@ -20,7 +20,7 @@ namespace Common.Repositories
             },
 
         };
-        public IReadOnlyCollection<User> GetAllUser(int? offset, string? labelFreeText, int? limit)
+        public IReadOnlyCollection<User> GetAllUser(int? offset, string? labelFreeText)
         {
             IEnumerable<User> users = Users;
 
@@ -29,16 +29,13 @@ namespace Common.Repositories
                 users = users.Where(t => t.Name.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase));
             }
 
-            users = users.OrderBy(t => t.Id);
+            users = users.OrderBy(t => t.Id).ToList();
 
             if (offset.HasValue)
             {
                 users.Skip(offset.Value);
             }
 
-            limit ??= 10;
-
-            users = users.Take(limit.Value).ToList();
 
             return (IReadOnlyCollection<User>)users;
         }
@@ -56,9 +53,9 @@ namespace Common.Repositories
             return toDo;
         }
 
-        public User? UpdateUser(int id, User newUser)
+        public User? UpdateUser(User newUser)
         {
-            var todo = Users.SingleOrDefault(t => t.Id == id);
+            var todo = Users.SingleOrDefault(t => t.Id == newUser.Id);
             
             todo.Name = newUser.Name;
 
@@ -66,13 +63,16 @@ namespace Common.Repositories
         }
 
 
-        public User RemoveUser(int id)
+        public bool RemoveUser(int id)
         {
             var user = Users.SingleOrDefault(t => t.Id == id);
 
-            Users.Remove(user);
-
-            return user;
+            if (user!=null)
+            {
+                Users.Remove(user);
+                return true;
+            }
+            return false;
         }
     }
 }

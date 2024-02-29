@@ -6,7 +6,7 @@
         public DateTime CreatedDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public bool IsDone { get; set; }
-        public string Label { get; set; } = string.Empty;
+        public string? Label { get; set; }
         public int OwnerId { get; set; }
     }
 }

@@ -13,7 +13,10 @@ namespace Users.Service
         }
         public IReadOnlyCollection<User> GetAllUsers(int? offset, string? labelFreeText, int? limit)
         {
-            return _userRepository.GetAllUser(offset, labelFreeText, limit);
+
+            limit ??= 10;
+            
+            return _userRepository.GetAllUser(offset, labelFreeText).Take(limit.Value).ToList();
         }
 
         public User? GetUserById(int id)
@@ -26,23 +29,23 @@ namespace Users.Service
             return _userRepository.AddUser(user);
         }
 
-        public User? UpdateUser(int id, User newUser)
+        public User? UpdateUser(User newUser)
         {
-            var todo = _userRepository.GetUserById(id);
+            var todo = _userRepository.GetUserById(newUser.Id);
             if (todo == null)
             {
                 return null;
             }
           
-            return _userRepository.UpdateUser(id, newUser);
+            return _userRepository.UpdateUser(newUser);
         }
 
-        public User RemoveUser(int id)
+        public bool RemoveUser(int id)
         {
             var todoToRemove = _userRepository.GetUserById(id);
             if (todoToRemove == null)
             {
-                return null;
+                return false;
             }
             return _userRepository.RemoveUser(id);
         }

@@ -17,7 +17,9 @@ namespace Todos.Service
         
         public IReadOnlyCollection<Domain.Todos> GetAllToDo(int? offset, int? ownerId, string? labelFreeText, int? limit = 10)
         {
-           return _todosRepository.GetAllToDo(offset, ownerId, labelFreeText, limit);
+            limit ??= 10;
+            
+            return _todosRepository.GetAllToDo(offset, ownerId, labelFreeText).Take(limit.Value).ToList();
         }
 
         public Domain.Todos? GetToDoById(int id)
@@ -25,15 +27,15 @@ namespace Todos.Service
             return _todosRepository.GetToDoById(id);
         }
 
-        public Domain.Todos AddToDo(Domain.Todos toDo, int ownerId)
+        public Domain.Todos AddToDo(Domain.Todos toDo)
         {
-            var owner = _userRepository.GetUserById(ownerId);
+            var owner = _userRepository.GetUserById(toDo.OwnerId);
             if (owner is null)
             {
                 throw  new Exception("User does not exist");
             }
             toDo.CreatedDate = DateTime.UtcNow;
-            return _todosRepository.AddToDo(toDo, ownerId);
+            return _todosRepository.AddToDo(toDo);
         }
         public Domain.Todos? UpdateToDo(int id, Domain.Todos newToDo)
         {
@@ -49,20 +51,18 @@ namespace Todos.Service
                 throw new Exception("User does not exist");
             }
             //we cannot change ownerId for todos after created
-            todo.OwnerId=owner.Id;
-            todo.UpdateDate = DateTime.UtcNow;
+            newToDo.OwnerId=owner.Id;
+            newToDo.UpdateDate = DateTime.UtcNow;
+           
             return _todosRepository.UpdateToDo(id,newToDo);
         }
-        public Domain.Todos UpdateToDoIsDone(int id, bool isDone)
-        {
-           return _todosRepository.UpdateToDoIsDone(id, isDone);
-        }
-        public Domain.Todos RemoveToDo(int id)
+        
+        public bool RemoveToDo(int id)
         {
             var todoToRemove = _todosRepository.GetToDoById(id);
             if (todoToRemove == null)
             {
-                return null;
+                return false;
             }
             return _todosRepository.RemoveToDo(id);
         }

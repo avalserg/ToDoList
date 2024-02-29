@@ -28,11 +28,6 @@ namespace Todos.Api.Controllers
         {
            
             var todos = _todosService.GetAllToDo(offset,ownerId, labelFreeText, limit);
-
-            if (!todos.Any())
-            {
-                return NoContent();
-            }
             
             return Ok(todos);
         } 
@@ -64,16 +59,16 @@ namespace Todos.Api.Controllers
             return Ok(new { todo.Id, todo.IsDone });
         }
         //owner id is required
-        [HttpPost("{ownerId}")]
-        public IActionResult AddToDo(int ownerId, Todos.Domain.Todos toDo)
+        [HttpPost]
+        public IActionResult AddToDo(Domain.Todos toDo)
         {
-            var todo = _todosService.AddToDo(toDo, ownerId);
+            var todo = _todosService.AddToDo(toDo);
 
             return Created($"todos/{todo.Id}", todo);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateToDo(int id, Todos.Domain.Todos newToDo)
+        public IActionResult UpdateToDo(int id, Domain.Todos newToDo)
         {
             var todo = _todosService.UpdateToDo(id, newToDo);
 
@@ -86,9 +81,9 @@ namespace Todos.Api.Controllers
         }
 
         [HttpPatch("{id}/IsDone")]
-        public IActionResult UpdateToDoIsDone(int id, bool isDone)
+        public IActionResult UpdateToDoIsDone(int id, Domain.Todos newToDo)
         {
-            var todo = _todosService.UpdateToDoIsDone(id, isDone);
+            var todo = _todosService.UpdateToDo(id, newToDo);
 
             if (todo == null)
             {
@@ -103,12 +98,12 @@ namespace Todos.Api.Controllers
         {
             var todo = _todosService.RemoveToDo(id);
 
-            if (todo == null)
+            if (!todo)
             {
                 return NotFound($"Запись с ID = {id} отсутствует");
             }
 
-            return Ok(todo);
+            return Ok($"Запись с ID = {id} удалена");
         }
 
     }

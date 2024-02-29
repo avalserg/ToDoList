@@ -4,10 +4,10 @@ namespace Common.Repositories
 {
     public interface IUserRepository
     {
-        IReadOnlyCollection<User> GetAllUser(int? offset, string? labelFreeText, int? limit = 10);
+        IReadOnlyCollection<User> GetAllUser(int? offset, string? labelFreeText);
         User? GetUserById(int id);
         User AddUser(User toDo);
-        User? UpdateUser(int id, User newUser);
-        User RemoveUser(int id);
+        User? UpdateUser(User newUser);
+        bool RemoveUser(int id);
     }
 }
