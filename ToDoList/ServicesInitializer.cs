@@ -1,6 +1,7 @@
-﻿using Common.Repositories;
-using Todos.Repositories;
+﻿using Common.Domain;
+using Common.Repositories;
 using Todos.Service;
+using Todos.Service.Mapping;
 
 namespace Todos.Api
 {
@@ -8,14 +9,17 @@ namespace Todos.Api
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
-            services.AddTransient<ITodosRepository, TodosRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IBaseRepository<Domain.Todos>, BaseRepository<Domain.Todos>>();
+            services.AddTransient<IBaseRepository<User>, BaseRepository<User>>();
         }
 
         public static void InitializeServices(this IServiceCollection services)
         {
             services.AddTransient<ITodosService, TodosService>();
-            
+        }
+        public static void AddAutoMapperService(this IServiceCollection services)
+        {
+            services.AddAutoMapper(typeof(AutoMapperProfile));
         }
     }
 }

@@ -5,49 +5,64 @@ namespace Users.Service
 {
     public class UserService:IUserService
     {
-        private readonly IUserRepository _userRepository;
-
-        public UserService(IUserRepository userRepository)
+        private readonly IBaseRepository<User> _userRepository;
+     
+        public UserService(IBaseRepository<User> userRepository)
         {
             _userRepository = userRepository;
+            for (int i = 1; i < 4; i++)
+            {
+                userRepository.Add(new User { Id = i, Name = $"User {i}" });
+            }
+
         }
-        public IReadOnlyCollection<User> GetAllUsers(int? offset, string? labelFreeText, int? limit)
+        public IReadOnlyCollection<User> GetAllUsers(int? offset, string? nameFreeText,  int? limit)
         {
 
             limit ??= 10;
             
-            return _userRepository.GetAllUser(offset, labelFreeText).Take(limit.Value).ToList();
+            return _userRepository.GetList(
+                offset, 
+                limit,
+                nameFreeText==null ? null: u=>u.Name.Contains(nameFreeText,StringComparison.InvariantCultureIgnoreCase),
+                u=>u.Id);
         }
 
         public User? GetUserById(int id)
         {
-            return _userRepository.GetUserById(id);
+            return _userRepository.GetSingleOrDefault(u=>u.Id==id);
         }
 
         public User AddUser(User user)
         {
-            return _userRepository.AddUser(user);
+            user.Id = _userRepository.Count() == 0 ? 1 : _userRepository.Count() + 1;
+            return _userRepository.Add(user);
         }
 
         public User? UpdateUser(User newUser)
         {
-            var todo = _userRepository.GetUserById(newUser.Id);
-            if (todo == null)
+            var user = _userRepository.GetSingleOrDefault(u=>u.Id==newUser.Id);
+            if (user == null)
             {
                 return null;
             }
           
-            return _userRepository.UpdateUser(newUser);
+            return _userRepository.Update(newUser);
         }
-
+        public int Count(string? nameFreeText)
+        {
+            return _userRepository.Count(nameFreeText == null
+                ? null
+                : t => t.Name.Contains(nameFreeText, StringComparison.InvariantCultureIgnoreCase));
+        }
         public bool RemoveUser(int id)
         {
-            var todoToRemove = _userRepository.GetUserById(id);
-            if (todoToRemove == null)
+            var userRemove = _userRepository.GetSingleOrDefault(u => u.Id == id);
+            if (userRemove == null)
             {
                 return false;
             }
-            return _userRepository.RemoveUser(id);
+            return _userRepository.Delete(userRemove);
         }
     }
 }

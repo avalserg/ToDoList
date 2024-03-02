@@ -1,4 +1,5 @@
 using Todos.Api;
+using Todos.Service.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.InitializeRepositories();
 builder.Services.InitializeServices();
+builder.Services.AddAutoMapperService();
 
 var app = builder.Build();
 

@@ -20,12 +20,8 @@ namespace Users.Api.Controllers
         {
 
             var users = _userService.GetAllUsers(offset, nameFreeText, limit);
-
-            if (!users.Any())
-            {
-                return NoContent();
-            }
-
+            var countUsers = _userService.Count(nameFreeText);
+            HttpContext.Response.Headers.Append("X-Total-Count", countUsers.ToString());
             return Ok(users);
         }
     }

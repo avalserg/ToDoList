@@ -1,3 +1,4 @@
+using Common.Domain;
 using Common.Repositories;
 using Users.Service;
 
@@ -6,10 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IBaseRepository<User>, BaseRepository<User>>();
 builder.Services.AddTransient<IUserService, UserService>();
 
 var app = builder.Build();

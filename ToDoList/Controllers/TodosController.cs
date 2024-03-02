@@ -1,6 +1,8 @@
+using Common.Domain;
 using Common.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Todos.Service;
+using Todos.Service.Dto;
 
 namespace Todos.Api.Controllers
 {
@@ -9,9 +11,9 @@ namespace Todos.Api.Controllers
     public class TodosController : ControllerBase
     {
         private readonly ITodosService _todosService;
-        private readonly IUserRepository _userRepository;
+        private readonly IBaseRepository<User> _userRepository;
 
-        public TodosController(ITodosService todosService,IUserRepository userRepository)
+        public TodosController(ITodosService todosService,IBaseRepository<User> userRepository)
         {
             _todosService = todosService;
             _userRepository = userRepository;
@@ -20,17 +22,28 @@ namespace Todos.Api.Controllers
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="labelFreeText">search by label field</param>
         /// <param name="limit">max count return values</param>
         /// <param name="offset">count missed values</param>
         /// <returns>List all todos</returns>
         [HttpGet]
-        public IActionResult GetAllToDo( int? offset, int? ownerId, string? labelFreeText, int? limit)
+        public IActionResult GetAllToDo( int? offset, string? labelFreeText, int? limit)
         {
            
-            var todos = _todosService.GetAllToDo(offset,ownerId, labelFreeText, limit);
-            
+            var todos = _todosService.GetAllToDo(offset, labelFreeText, limit);
+            var countTodos = _todosService.Count(labelFreeText);
+            HttpContext.Response.Headers.Append("X-Total-Count", countTodos.ToString());
+
             return Ok(todos);
-        } 
+        }
+        [HttpGet("totalCount")]
+        public IActionResult GetCountToDo( string? labelFreeText)
+        {
+
+            var todos = _todosService.Count(labelFreeText);
+
+            return Ok(todos);
+        }
 
         [HttpGet("{id}")]
         public IActionResult GetToDoById(int id)
@@ -60,30 +73,32 @@ namespace Todos.Api.Controllers
         }
         //owner id is required
         [HttpPost]
-        public IActionResult AddToDo(Domain.Todos toDo)
+        public IActionResult AddToDo(CreateTodoDto toDo)
         {
-            var todo = _todosService.AddToDo(toDo);
+            var todo = _todosService.CreateToDo(toDo);
 
             return Created($"todos/{todo.Id}", todo);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateToDo(int id, Domain.Todos newToDo)
+        public IActionResult UpdateToDo(int id,UpdateToDoDto updateToDo)
         {
-            var todo = _todosService.UpdateToDo(id, newToDo);
+            updateToDo.Id = id;
+            var todo = _todosService.UpdateToDo(updateToDo);
 
             if (todo == null)
             {
-                return NotFound($"Запись с ID = {id} отсутствует");
+                return NotFound($"Запись с ID = {updateToDo.Id} отсутствует");
             }
 
             return Ok(todo);
         }
 
         [HttpPatch("{id}/IsDone")]
-        public IActionResult UpdateToDoIsDone(int id, Domain.Todos newToDo)
+        public IActionResult UpdateToDoIsDone(int id, UpdateToDoDto updateToDo)
         {
-            var todo = _todosService.UpdateToDo(id, newToDo);
+            updateToDo.Id = id;
+            var todo = _todosService.UpdateToDo(updateToDo);
 
             if (todo == null)
             {
@@ -97,7 +112,7 @@ namespace Todos.Api.Controllers
         public IActionResult RemoveToDo([FromBody]int id)
         {
             var todo = _todosService.RemoveToDo(id);
-
+            var todos = _todosService.GetAllToDo(null,null,null);
             if (!todo)
             {
                 return NotFound($"Запись с ID = {id} отсутствует");

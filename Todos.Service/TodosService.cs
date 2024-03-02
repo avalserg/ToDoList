@@ -1,70 +1,105 @@
-﻿using Common.Repositories;
-using Todos.Repositories;
+﻿using AutoMapper;
+using Common.Domain;
+using Common.Repositories;
+using Todos.Service.Dto;
 
 namespace Todos.Service
 {
     public class TodosService : ITodosService
     {
-        private readonly ITodosRepository _todosRepository;
-        private readonly IUserRepository _userRepository;
+       
+        private readonly IBaseRepository<Domain.Todos> _todosRepository;
+        private readonly IBaseRepository<User> _userRepository;
+        private readonly IMapper _mapper;
 
-        public TodosService(ITodosRepository todosRepository, IUserRepository userRepository)
+        public TodosService(IBaseRepository<Domain.Todos> todosRepository, IBaseRepository<User> userRepository,IMapper mapper)
         {
             _todosRepository = todosRepository;
             _userRepository = userRepository;
+            _mapper = mapper;
+            //!!
+            for (var i = 1; i < 4; i++)
+            {
+                _todosRepository.Add(new Domain.Todos { Id = i, OwnerId = i, Label = $"Todo {i}", IsDone = false, CreatedDate = DateTime.Now, UpdateDate = default});
+                _userRepository.Add(new User { Id = i, Name = $"User {i}" });
+            }
+            
         }
 
         
-        public IReadOnlyCollection<Domain.Todos> GetAllToDo(int? offset, int? ownerId, string? labelFreeText, int? limit = 10)
+        public IReadOnlyCollection<Domain.Todos> GetAllToDo(int? offset, string? labelFreeText, int? limit)
         {
             limit ??= 10;
-            
-            return _todosRepository.GetAllToDo(offset, ownerId, labelFreeText).Take(limit.Value).ToList();
+            var list = _todosRepository.GetList(
+                offset,
+                limit,
+                labelFreeText == null ? null : t => t.Label.Contains(labelFreeText,StringComparison.InvariantCultureIgnoreCase),
+                t => t.Id);
+
+            return list;
         }
 
         public Domain.Todos? GetToDoById(int id)
         {
-            return _todosRepository.GetToDoById(id);
+            return _todosRepository.GetSingleOrDefault(t=>t.Id==id);
         }
 
-        public Domain.Todos AddToDo(Domain.Todos toDo)
+        public Domain.Todos CreateToDo(CreateTodoDto createToDo)
         {
-            var owner = _userRepository.GetUserById(toDo.OwnerId);
+            var owner = _userRepository.GetSingleOrDefault(u=>u.Id==createToDo.OwnerId);
             if (owner is null)
             {
                 throw  new Exception("User does not exist");
             }
-            toDo.CreatedDate = DateTime.UtcNow;
-            return _todosRepository.AddToDo(toDo);
+            var todoEntity = _mapper.Map<CreateTodoDto,Domain.Todos>(createToDo);
+            
+            todoEntity.CreatedDate = DateTime.UtcNow;
+            // always false after created
+            todoEntity.IsDone = false;
+
+            todoEntity.Id = _todosRepository.Count() == 0 ? 1 : _todosRepository.Count() + 1;
+            return _todosRepository.Add(todoEntity);
         }
-        public Domain.Todos? UpdateToDo(int id, Domain.Todos newToDo)
+        public Domain.Todos? UpdateToDo(UpdateToDoDto updateToDo)
         {
-           
-            var todo = _todosRepository.GetToDoById(id);
-            if (todo==null)
+
+         
+            var todoEntity = _todosRepository.GetSingleOrDefault(t=>t.Id==updateToDo.Id);
+            if (todoEntity == null)
             {
                 return null;
             }
-            var owner = _userRepository.GetUserById(todo.OwnerId);
+
+            var owner = _userRepository.GetSingleOrDefault(u => u.Id == todoEntity.OwnerId);
             if (owner is null)
             {
                 throw new Exception("User does not exist");
             }
-            //we cannot change ownerId for todos after created
-            newToDo.OwnerId=owner.Id;
-            newToDo.UpdateDate = DateTime.UtcNow;
+
+            _mapper.Map(updateToDo, todoEntity);
+            
+            // we cannot change ownerId for todos after created
+            todoEntity.OwnerId=owner.Id;
+            todoEntity.UpdateDate = DateTime.UtcNow;
            
-            return _todosRepository.UpdateToDo(id,newToDo);
+            return _todosRepository.Update(todoEntity);
         }
-        
+
+        public int Count(string? labelFreeText)
+        {
+            return _todosRepository.Count(labelFreeText == null
+                ? null
+                : t => t.Label.Contains(labelFreeText, StringComparison.InvariantCultureIgnoreCase));
+        }
+
         public bool RemoveToDo(int id)
         {
-            var todoToRemove = _todosRepository.GetToDoById(id);
+            var todoToRemove = _todosRepository.GetSingleOrDefault(t => t.Id == id);
             if (todoToRemove == null)
             {
                 return false;
             }
-            return _todosRepository.RemoveToDo(id);
+            return _todosRepository.Delete(todoToRemove);
         }
     }
 }
