@@ -6,16 +6,22 @@ namespace Users.Service
     public class UserService:IUserService
     {
         private readonly IBaseRepository<User> _userRepository;
-     
+       
         public UserService(IBaseRepository<User> userRepository)
         {
             _userRepository = userRepository;
-            for (int i = 1; i < 4; i++)
-            {
-                userRepository.Add(new User { Id = i, Name = $"User {i}" });
-            }
 
+            if (_userRepository.Count() > 0)
+            {
+                return;
+            }
+            //!!
+            for (var i = 1; i < 4; i++)
+            {
+                _userRepository.Add(new User { Id = i, Name = $"User {i}" });
+            }
         }
+
         public IReadOnlyCollection<User> GetAllUsers(int? offset, string? nameFreeText,  int? limit)
         {
 

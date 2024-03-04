@@ -24,5 +24,6 @@ namespace Users.Api.Controllers
             HttpContext.Response.Headers.Append("X-Total-Count", countUsers.ToString());
             return Ok(users);
         }
+   
     }
 }

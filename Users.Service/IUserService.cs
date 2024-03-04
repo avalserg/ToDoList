@@ -10,5 +10,6 @@ namespace Users.Service
         User? UpdateUser(User newUser);
         int Count(string? nameFreeText);
         bool RemoveUser(int id);
+      
     }
 }

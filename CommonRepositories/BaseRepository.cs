@@ -4,7 +4,7 @@ namespace Common.Repositories;
 
 public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class, new() 
 {
-    private readonly List<TEntity> _data = new ();
+    private static readonly List<TEntity> _data=new();
 
     public TEntity[] GetList(int? offset = null, int? limit = null, Expression<Func<TEntity, bool>>? predicate = null,
         Expression<Func<TEntity, object>>? orderBy = null,
@@ -23,10 +23,9 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
                 ? result.OrderByDescending(orderBy.Compile())
                 : result.OrderBy(orderBy.Compile());
         }
-
+        
         result = result.Skip(offset.GetValueOrDefault());
-
-
+       
         if (limit.HasValue)
         {
             result = result.Take(limit.Value);
@@ -64,7 +63,6 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
 
     public TEntity Update(TEntity entity)
     {
-        
         //!!
         Delete(entity);
         _data.Add(entity);

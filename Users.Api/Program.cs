@@ -1,6 +1,4 @@
-using Common.Domain;
-using Common.Repositories;
-using Users.Service;
+using Users.Service.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +8,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<IBaseRepository<User>, BaseRepository<User>>();
-builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.InitializeRepositories();
+builder.Services.InitializeServices();
+builder.Services.AddAutoMapperService();
 
 var app = builder.Build();
 

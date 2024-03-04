@@ -1,4 +1,5 @@
-﻿using Todos.Service.Dto;
+﻿using Common.Domain;
+using Todos.Service.Dto;
 
 namespace Todos.Service;
 
@@ -10,4 +11,5 @@ public interface ITodosService
     Domain.Todos? UpdateToDo(UpdateToDoDto newToDo);
     int Count(string? labelFreeText);
     bool RemoveToDo(int id);
+   
 }

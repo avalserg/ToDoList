@@ -1,25 +1,26 @@
 ﻿using Common.Domain;
 using Common.Repositories;
-using Todos.Service;
-using Todos.Service.Mapping;
+using Microsoft.Extensions.DependencyInjection;
+using Users.Service.Mapping;
 
-namespace Todos.Api
+namespace Users.Service.DI
 {
     public static class ServicesInitializer
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
-            services.AddTransient<IBaseRepository<Domain.Todos>, BaseRepository<Domain.Todos>>();
+
             services.AddTransient<IBaseRepository<User>, BaseRepository<User>>();
         }
 
         public static void InitializeServices(this IServiceCollection services)
         {
-            services.AddTransient<ITodosService, TodosService>();
+            services.AddTransient<IUserService, UserService>();
         }
         public static void AddAutoMapperService(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(AutoMapperProfile));
         }
+
     }
 }
