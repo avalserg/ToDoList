@@ -1,5 +1,6 @@
 ﻿using Common.Domain;
 using Common.Repositories;
+using Serilog;
 
 namespace Users.Service
 {
@@ -50,9 +51,11 @@ namespace Users.Service
             var user = _userRepository.GetSingleOrDefault(u=>u.Id==newUser.Id);
             if (user == null)
             {
+                Log.Error($"User {newUser.Id} does not exist");
                 return null;
             }
-          
+
+            Log.Information($"User with id={newUser.Id} was updated");
             return _userRepository.Update(newUser);
         }
         public int Count(string? nameFreeText)
@@ -66,8 +69,11 @@ namespace Users.Service
             var userRemove = _userRepository.GetSingleOrDefault(u => u.Id == id);
             if (userRemove == null)
             {
+                Log.Error($"User with id={id} does not exist");
                 return false;
             }
+
+            Log.Information($"User with id={id} was deleted");
             return _userRepository.Delete(userRemove);
         }
     }

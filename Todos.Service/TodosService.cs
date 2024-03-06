@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Common.Domain;
 using Common.Repositories;
-using System.ComponentModel;
+using Serilog;
 using Todos.Service.Dto;
 
 namespace Todos.Service
@@ -22,14 +22,12 @@ namespace Todos.Service
             {
                 return;
             }
-            //!!
+           
             for (var i = 1; i < 4; i++)
             {
                 _todosRepository.Add(new Domain.Todos { Id = i, OwnerId = i, Label = $"Todo {i}", IsDone = false, CreatedDate = DateTime.Now, UpdateDate = default });
                 _userRepository.Add(new User { Id = i, Name = $"User {i}" });
             }
-
-
         }
        
         public IReadOnlyCollection<Domain.Todos> GetAllToDo(int? offset, string? labelFreeText, int? limit)
@@ -54,7 +52,8 @@ namespace Todos.Service
             var owner = _userRepository.GetSingleOrDefault(u=>u.Id==createToDo.OwnerId);
             if (owner is null)
             {
-                throw  new Exception("User does not exist");
+                Log.Error($"User {createToDo.OwnerId} does not exist");
+                throw  new Exception($"User {createToDo.OwnerId} does not exist");
             }
             var todoEntity = _mapper.Map<CreateTodoDto,Domain.Todos>(createToDo);
             
@@ -63,6 +62,9 @@ namespace Todos.Service
             todoEntity.IsDone = false;
 
             todoEntity.Id = _todosRepository.Count() == 0 ? 1 : _todosRepository.Count() + 1;
+
+            Log.Information($"Todo with id={todoEntity.Id} was created");
+           
             return _todosRepository.Add(todoEntity);
         }
         public Domain.Todos? UpdateToDo(UpdateToDoDto updateToDo)
@@ -72,21 +74,24 @@ namespace Todos.Service
             var todoEntity = _todosRepository.GetSingleOrDefault(t=>t.Id==updateToDo.Id);
             if (todoEntity == null)
             {
+                Log.Error($"Todo {updateToDo.Id} does not exist");
                 return null;
             }
 
             var owner = _userRepository.GetSingleOrDefault(u => u.Id == todoEntity.OwnerId);
             if (owner is null)
             {
+                Log.Error($"User {todoEntity.OwnerId} does not exist");
                 throw new Exception("User does not exist");
             }
 
             _mapper.Map(updateToDo, todoEntity);
             
-            // we cannot change ownerId for todos after created
-            //todoEntity.OwnerId=owner.Id;
-            todoEntity.UpdateDate = DateTime.UtcNow;
            
+            todoEntity.UpdateDate = DateTime.UtcNow;
+
+            Log.Information($"Todo with id={todoEntity.Id} was updated");
+
             return _todosRepository.Update(todoEntity);
         }
 
@@ -102,8 +107,12 @@ namespace Todos.Service
             var todoToRemove = _todosRepository.GetSingleOrDefault(t => t.Id == id);
             if (todoToRemove == null)
             {
+                Log.Error($"Todo with id={id} does not exist");
                 return false;
             }
+
+            Log.Information($"Todo with id={id} was deleted");
+
             return _todosRepository.Delete(todoToRemove);
         }
 

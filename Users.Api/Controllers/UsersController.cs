@@ -9,6 +9,7 @@ namespace Users.Api.Controllers
     {
       
         private readonly IUserService _userService;
+       
 
         public UsersController( IUserService userService)
         {

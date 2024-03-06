@@ -1,6 +1,7 @@
 using Common.Domain;
 using Common.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Todos.Service;
 using Todos.Service.Dto;
 
@@ -12,11 +13,13 @@ namespace Todos.Api.Controllers
     {
         private readonly ITodosService _todosService;
         private readonly IBaseRepository<User> _userRepository;
+     
 
         public TodosController(ITodosService todosService,IBaseRepository<User> userRepository)
         {
             _todosService = todosService;
             _userRepository = userRepository;
+            
         }
 
         /// <summary>
@@ -29,7 +32,6 @@ namespace Todos.Api.Controllers
         [HttpGet]
         public IActionResult GetAllToDo( int? offset, string? labelFreeText, int? limit)
         {
-           
             var todos = _todosService.GetAllToDo(offset, labelFreeText, limit);
             var countTodos = _todosService.Count(labelFreeText);
             HttpContext.Response.Headers.Append("X-Total-Count", countTodos.ToString());
@@ -76,7 +78,7 @@ namespace Todos.Api.Controllers
         public IActionResult AddToDo(CreateTodoDto toDo)
         {
             var todo = _todosService.CreateToDo(toDo);
-
+            
             return Created($"todos/{todo.Id}", todo);
         }
 
@@ -112,7 +114,7 @@ namespace Todos.Api.Controllers
         public IActionResult RemoveToDo([FromBody]int id)
         {
             var todo = _todosService.RemoveToDo(id);
-            var todos = _todosService.GetAllToDo(null,null,null);
+            
             if (!todo)
             {
                 return NotFound($"Запись с ID = {id} отсутствует");
@@ -120,6 +122,6 @@ namespace Todos.Api.Controllers
 
             return Ok($"Запись с ID = {id} удалена");
         }
-        
+       
     }
 }

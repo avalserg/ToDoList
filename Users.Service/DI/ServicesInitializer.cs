@@ -1,6 +1,8 @@
 ﻿using Common.Domain;
 using Common.Repositories;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using Users.Service.Mapping;
 
 namespace Users.Service.DI
@@ -21,6 +23,9 @@ namespace Users.Service.DI
         {
             services.AddAutoMapper(typeof(AutoMapperProfile));
         }
-
+        public static void AddValidationService(this IServiceCollection services)
+        {
+            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() }, includeInternalTypes: true);
+        }
     }
 }

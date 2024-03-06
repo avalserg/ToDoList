@@ -1,10 +1,11 @@
-﻿using Common.Domain;
+﻿using System.Reflection;
+using Common.Domain;
 using Common.Repositories;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using Todos.Service;
 using Todos.Service.Mapping;
 
-namespace Todos.Api
+namespace Todos.Service.DI
 {
     public static class ServicesInitializer
     {
@@ -21,6 +22,10 @@ namespace Todos.Api
         public static void AddAutoMapperService(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(AutoMapperProfile));
+        }
+        public static void AddValidationService(this IServiceCollection services)
+        {
+            services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() }, includeInternalTypes: true);
         }
     
     }
