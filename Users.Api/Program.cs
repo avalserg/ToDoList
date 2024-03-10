@@ -1,8 +1,10 @@
+using Common.Repositories.Context;
 using FluentValidation.AspNetCore;
 using Serilog.Events;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Users.Service.DI;
+using System.Text.Json.Serialization;
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .WriteTo.Console(new RenderedCompactJsonFormatter(), LogEventLevel.Information)
@@ -15,7 +17,7 @@ try
 
 
     var builder = WebApplication.CreateBuilder(args);
-
+    builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
     // Add services to the container.
 
     builder.Services.AddControllers();
@@ -27,6 +29,7 @@ try
     builder.Services.AddAutoMapperService();
     builder.Services.AddValidationService();
     builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddTodosDatabase(builder.Configuration);
 
     var app = builder.Build();
 

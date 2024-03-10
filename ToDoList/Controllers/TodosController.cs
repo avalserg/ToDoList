@@ -11,13 +11,11 @@ namespace Todos.Api.Controllers
     public class TodosController : ControllerBase
     {
         private readonly ITodosService _todosService;
-        private readonly IBaseRepository<User> _userRepository;
-     
-
-        public TodosController(ITodosService todosService,IBaseRepository<User> userRepository)
+       
+        public TodosController(ITodosService todosService)
         {
             _todosService = todosService;
-            _userRepository = userRepository;
+            
             
         }
 

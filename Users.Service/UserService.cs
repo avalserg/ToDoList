@@ -1,16 +1,20 @@
-﻿using Common.Domain;
+﻿using AutoMapper;
+using Common.Domain;
 using Common.Repositories;
 using Serilog;
+using Users.Service.Dto;
 
 namespace Users.Service
 {
     public class UserService:IUserService
     {
         private readonly IBaseRepository<User> _userRepository;
-       
-        public UserService(IBaseRepository<User> userRepository)
+        private readonly IMapper _mapper;
+
+        public UserService(IBaseRepository<User> userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
 
             if (_userRepository.Count() > 0)
             {
@@ -35,18 +39,21 @@ namespace Users.Service
                 u=>u.Id);
         }
 
-        public async Task<User?> GetUserById(int id)
+        public async Task<User?> GetUserByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==id);
+           var user =  await _userRepository.GetSingleOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+            return await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==id, cancellationToken);
         }
 
-        public User AddUser(User user)
+        public User AddUser(CreateUserDto user)
         {
-            user.Id = _userRepository.Count() == 0 ? 1 : _userRepository.Count() + 1;
-            return _userRepository.Add(user);
+            var userEntity = _mapper.Map<CreateUserDto, User>(user);
+
+            return _userRepository.Add(userEntity);
         }
 
-        public User? UpdateUser(User newUser)
+        public User? UpdateUser(UpdateUserDto newUser)
         {
             var user = _userRepository.GetSingleOrDefault(u=>u.Id==newUser.Id);
             if (user == null)
@@ -54,9 +61,9 @@ namespace Users.Service
                 Log.Error($"User {newUser.Id} does not exist");
                 return null;
             }
-
+            _mapper.Map(newUser, user);
             Log.Information($"User with id={newUser.Id} was updated");
-            return _userRepository.Update(newUser);
+            return _userRepository.Update(user);
         }
         public int Count(string? nameFreeText)
         {
