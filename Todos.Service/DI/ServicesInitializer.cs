@@ -1,7 +1,10 @@
 ﻿using System.Reflection;
 using Common.Domain;
 using Common.Repositories;
+using Common.Repositories.Context;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Todos.Service.Mapping;
 
@@ -11,7 +14,7 @@ namespace Todos.Service.DI
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
-            services.AddTransient<IBaseRepository<Domain.Todos>, BaseRepository<Domain.Todos>>();
+            services.AddTransient<IBaseRepository<Common.Domain.Todos>, BaseRepository<Common.Domain.Todos>>();
             services.AddTransient<IBaseRepository<User>, BaseRepository<User>>();
         }
 
@@ -26,7 +29,7 @@ namespace Todos.Service.DI
         public static void AddValidationService(this IServiceCollection services)
         {
             services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() }, includeInternalTypes: true);
-        }
-    
+        } 
+  
     }
 }

@@ -5,10 +5,13 @@ namespace Todos.Service;
 
 public interface ITodosService
 {
-    IReadOnlyCollection<Domain.Todos> GetAllToDo(int? offset, string? labelFreeText, int? limit = 10);
-    Domain.Todos? GetToDoById(int id);
-    Domain.Todos CreateToDo(CreateTodoDto toDo);
-    Domain.Todos? UpdateToDo(UpdateToDoDto newToDo);
+    IReadOnlyCollection<Common.Domain.Todos> GetAllToDo(int? offset, string? labelFreeText, int? limit = 10);
+    Task<IReadOnlyCollection<Common.Domain.Todos>> GetAllToDoAsync(int? offset, string? labelFreeText, int? limit);
+    Common.Domain.Todos? GetToDoById(int id);
+    Task<Common.Domain.Todos?> GetToDoByIdAsync(int id,CancellationToken cancellationToken);
+    Common.Domain.Todos CreateToDo(CreateTodoDto toDo);
+    Task<Common.Domain.Todos?> CreateToDoAsync(CreateTodoDto createToDo);
+    Common.Domain.Todos? UpdateToDo(UpdateToDoDto newToDo);
     int Count(string? labelFreeText);
     bool RemoveToDo(int id);
    

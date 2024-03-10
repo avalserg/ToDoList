@@ -31,13 +31,13 @@ namespace Users.Service
             return _userRepository.GetList(
                 offset, 
                 limit,
-                nameFreeText==null ? null: u=>u.Name.Contains(nameFreeText,StringComparison.InvariantCultureIgnoreCase),
+                nameFreeText==null ? null: u=>u.Name.Contains(nameFreeText),
                 u=>u.Id);
         }
 
-        public User? GetUserById(int id)
+        public async Task<User?> GetUserById(int id)
         {
-            return _userRepository.GetSingleOrDefault(u=>u.Id==id);
+            return await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==id);
         }
 
         public User AddUser(User user)

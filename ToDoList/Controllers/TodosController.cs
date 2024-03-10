@@ -1,7 +1,6 @@
 using Common.Domain;
 using Common.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Todos.Service;
 using Todos.Service.Dto;
 
@@ -30,9 +29,9 @@ namespace Todos.Api.Controllers
         /// <param name="offset">count missed values</param>
         /// <returns>List all todos</returns>
         [HttpGet]
-        public IActionResult GetAllToDo( int? offset, string? labelFreeText, int? limit)
+        public async Task<IActionResult> GetAllToDoAsync( int? offset, string? labelFreeText, int? limit)
         {
-            var todos = _todosService.GetAllToDo(offset, labelFreeText, limit);
+            var todos =await _todosService.GetAllToDoAsync(offset, labelFreeText, limit);
             var countTodos = _todosService.Count(labelFreeText);
             HttpContext.Response.Headers.Append("X-Total-Count", countTodos.ToString());
 
@@ -48,10 +47,10 @@ namespace Todos.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetToDoById(int id)
+        public async Task<IActionResult> GetToDoByIdAsync(int id, CancellationToken cancellationToken)
         {
            
-            var todo = _todosService.GetToDoById(id);
+            var todo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
 
             if (todo == null)
             {
@@ -75,9 +74,9 @@ namespace Todos.Api.Controllers
         }
         //owner id is required
         [HttpPost]
-        public IActionResult AddToDo(CreateTodoDto toDo)
+        public async Task<IActionResult> AddToDoAsync(CreateTodoDto toDo)
         {
-            var todo = _todosService.CreateToDo(toDo);
+            var todo = await _todosService.CreateToDoAsync(toDo);
             
             return Created($"todos/{todo.Id}", todo);
         }

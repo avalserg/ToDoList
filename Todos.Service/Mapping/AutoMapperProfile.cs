@@ -7,8 +7,8 @@ namespace Todos.Service.Mapping
     {
         public AutoMapperProfile()
         {
-            CreateMap<UpdateToDoDto, Domain.Todos>();
-            CreateMap<CreateTodoDto, Domain.Todos>();
+            CreateMap<UpdateToDoDto, Common.Domain.Todos>();
+            CreateMap<CreateTodoDto, Common.Domain.Todos>();
         }
     }
 }

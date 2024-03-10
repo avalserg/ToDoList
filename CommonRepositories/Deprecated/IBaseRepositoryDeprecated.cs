@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 
-namespace Common.Repositories;
+namespace Common.Repositories.Deprecated;
 
-public interface IBaseRepository<TEntity> where TEntity : class, new() 
+public interface IBaseRepositoryDeprecated<TEntity> where TEntity : class, new() 
 {
     /// <summary>
     /// 
@@ -19,16 +19,9 @@ public interface IBaseRepository<TEntity> where TEntity : class, new()
         Expression<Func<TEntity, bool>>? predicate = null, 
         Expression<Func<TEntity, object>>? orderBy = null,
         bool? descending = null);
-
-    Task<TEntity[]> GetListAsync(int? offset = null, int? limit = null,
-        Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, object>>? orderBy = null,
-        bool? descending = null);
-    Task<TEntity?> GetSingleOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null,
-        CancellationToken cancellationToken = default);
     TEntity? GetSingleOrDefault(Expression<Func<TEntity, bool>>? predicate = null);
     int Count(Expression<Func<TEntity, bool>>? predicate = null);
     TEntity Add(TEntity entity);
-    Task<TEntity?> AddAsync(TEntity entity);
     TEntity Update(TEntity entity);
     bool Delete(TEntity entity);
 }

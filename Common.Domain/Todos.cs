@@ -1,4 +1,4 @@
-﻿namespace Todos.Domain
+﻿namespace Common.Domain
 {
     public class Todos
     {
@@ -8,6 +8,7 @@
         public bool IsDone { get; set; }
         public string Label { get; set; } = default!;
         public int OwnerId { get; set; }
+        public User User { get; set; }
 
     }
 
