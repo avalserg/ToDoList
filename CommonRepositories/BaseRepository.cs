@@ -85,6 +85,11 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
     {
         var set = _applicationDbContext.Set<TEntity>();
         return predicate == null ? set.Count() : set.Count(predicate);
+    } 
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
+    {
+        var set = _applicationDbContext.Set<TEntity>();
+        return predicate == null ?await set.CountAsync() :await set.CountAsync(predicate);
     }
 
     public TEntity Add(TEntity entity)
@@ -93,20 +98,28 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         set.Add(entity);
         _applicationDbContext.SaveChanges();
         return entity;
-    }
+    } 
     public async Task<TEntity?> AddAsync(TEntity entity)
     {
         var set = _applicationDbContext.Set<TEntity>();
-        set.Add(entity);
+        await set.AddAsync(entity);
         await _applicationDbContext.SaveChangesAsync();
         return entity;
     }
+ 
 
     public TEntity Update(TEntity entity)
     {
         var set = _applicationDbContext.Set<TEntity>();
         set.Update(entity);
         _applicationDbContext.SaveChanges();
+        return entity;
+    }  
+    public async Task<TEntity> UpdateAsync(TEntity entity)
+    {
+        var set = _applicationDbContext.Set<TEntity>();
+        set.Update(entity);
+        await  _applicationDbContext.SaveChangesAsync();
         return entity;
     }
 
@@ -115,5 +128,11 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         var set = _applicationDbContext.Set<TEntity>();
         set.Remove(entity);
         return _applicationDbContext.SaveChanges() > 0;
+    }  
+    public async Task<bool> DeleteAsync(TEntity entity)
+    {
+        var set = _applicationDbContext.Set<TEntity>();
+        set.Remove(entity);
+        return await _applicationDbContext.SaveChangesAsync() > 0;
     }
 }

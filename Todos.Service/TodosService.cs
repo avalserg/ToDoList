@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Common.Domain;
 using Common.Repositories;
+using Common.Service.Exceptions;
 using Serilog;
 using Todos.Service.Dto;
-using Todos.Service.Exceptions;
+
 
 namespace Todos.Service
 {
@@ -21,16 +22,16 @@ namespace Todos.Service
             _userRepository = userRepository;
             _mapper = mapper;
             
-            if (_todosRepository.Count()>0)
-            {
-                return;
-            }
+            //if (_todosRepository.Count()>0)
+            //{
+            //    return;
+            //}
            
-            for (var i = 1; i < 4; i++)
-            {
-                _userRepository.Add(new User {  Name = $"User {i}" });
-                _todosRepository.Add(new Common.Domain.Todos {OwnerId = i, Label = $"Todo {i}", IsDone = false, CreatedDate = DateTime.Now, UpdateDate = default });
-            }
+            //for (var i = 1; i < 4; i++)
+            //{
+            //    _userRepository.Add(new User {  Login = $"User {i}" });
+            //    _todosRepository.Add(new Common.Domain.Todos {OwnerId = i, Label = $"Todo {i}", IsDone = false, CreatedDate = DateTime.Now, UpdateDate = default });
+            //}
         
         }
        
@@ -126,11 +127,42 @@ namespace Todos.Service
             Log.Information($"Todo with id={todoEntity.Id} was updated");
 
             return _todosRepository.Update(todoEntity);
+        }  
+        public async Task<Common.Domain.Todos?> UpdateToDoAsync(UpdateToDoDto updateToDo)
+        {
+            var todoEntity =await _todosRepository.GetSingleOrDefaultAsync(t=>t.Id==updateToDo.Id);
+            if (todoEntity == null)
+            {
+                Log.Error($"Todo {updateToDo.Id} does not exist");
+                throw new NotFoundException();
+            }
+
+            var owner = await _userRepository.GetSingleOrDefaultAsync(u => u.Id == todoEntity.OwnerId);
+            if (owner is null)
+            {
+                Log.Error($"User {todoEntity.OwnerId} does not exist");
+                throw new BadRequestException();
+            }
+
+            _mapper.Map(updateToDo, todoEntity);
+            
+           
+            todoEntity.UpdateDate = DateTime.UtcNow;
+
+            Log.Information($"Todo with id={todoEntity.Id} was updated");
+
+            return await _todosRepository.UpdateAsync(todoEntity);
         }
 
         public int Count(string? labelFreeText)
         {
             return _todosRepository.Count(labelFreeText == null
+                ? null
+                : t => t.Label.Contains(labelFreeText));
+        } 
+        public async Task<int> CountAsync(string? labelFreeText)
+        {
+            return await _todosRepository.CountAsync(labelFreeText == null
                 ? null
                 : t => t.Label.Contains(labelFreeText));
         }
@@ -147,6 +179,19 @@ namespace Todos.Service
             Log.Information($"Todo with id={id} was deleted");
             
             return _todosRepository.Delete(todoToRemove);
+        }
+        public async Task<bool> RemoveToDoAsync(int id)
+        {
+            var todoToRemove =await _todosRepository.GetSingleOrDefaultAsync(t => t.Id == id);
+            if (todoToRemove == null)
+            {
+                Log.Error($"Todo with id={id} does not exist");
+                throw new NotFoundException();
+            }
+            
+            Log.Information($"Todo with id={id} was deleted");
+            
+            return await _todosRepository.DeleteAsync(todoToRemove);
         }
 
     }

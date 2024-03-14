@@ -7,7 +7,7 @@ namespace Users.Service.Validators
     {
         public UpdateUserValidators()
         {
-            RuleFor(e => e.Name).MinimumLength(10).MaximumLength(20).WithMessage("Name Error");
+            RuleFor(e => e.Name).MinimumLength(10).MaximumLength(20).WithMessage("Login Error");
             RuleFor(e => e).NotNull();
         }
     }

@@ -27,8 +27,11 @@ public interface IBaseRepository<TEntity> where TEntity : class, new()
         CancellationToken cancellationToken = default);
     TEntity? GetSingleOrDefault(Expression<Func<TEntity, bool>>? predicate = null);
     int Count(Expression<Func<TEntity, bool>>? predicate = null);
+    Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null);
     TEntity Add(TEntity entity);
     Task<TEntity?> AddAsync(TEntity entity);
     TEntity Update(TEntity entity);
+    Task<TEntity> UpdateAsync(TEntity entity);
     bool Delete(TEntity entity);
+    Task<bool> DeleteAsync(TEntity entity);
 }

@@ -4,8 +4,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 using System.Text.Json.Serialization;
-using Todos.Api.CustomMiddlewares;
-using Todos.Api.Extensions;
+using Common.Api;
 using Todos.Service.DI;
 
 Log.Logger = new LoggerConfiguration()

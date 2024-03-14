@@ -12,7 +12,11 @@ public interface ITodosService
     Common.Domain.Todos CreateToDo(CreateTodoDto toDo);
     Task<Common.Domain.Todos?> CreateToDoAsync(CreateTodoDto createToDo);
     Common.Domain.Todos? UpdateToDo(UpdateToDoDto newToDo);
+    Task<Common.Domain.Todos?> UpdateToDoAsync(UpdateToDoDto updateToDo);
     int Count(string? labelFreeText);
+    Task<int> CountAsync(string? labelFreeText);
     bool RemoveToDo(int id);
-   
+    Task<bool> RemoveToDoAsync(int id);
+
+
 }

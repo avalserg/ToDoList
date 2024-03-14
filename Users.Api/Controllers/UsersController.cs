@@ -18,20 +18,20 @@ namespace Users.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllUsers(int? offset, string? nameFreeText, int? limit)
+        public async Task<IActionResult> GetAllUsersAsync(int? offset, string? nameFreeText, int? limit)
         {
 
-            var users = _userService.GetAllUsers(offset, nameFreeText, limit);
-            var countUsers = _userService.Count(nameFreeText);
+            var users = await _userService.GetAllUsersAsync(offset, nameFreeText, limit);
+            var countUsers = await _userService.CountAsync(nameFreeText);
             HttpContext.Response.Headers.Append("X-Total-Count", countUsers.ToString());
             return Ok(users);
         }
        
         [HttpGet("totalCount")]
-        public IActionResult GetCountUser(string? labelFreeText)
+        public async Task<IActionResult> GetCountUserAsync(string? labelFreeText)
         {
 
-            var users = _userService.Count(labelFreeText);
+            var users = await _userService.CountAsync(labelFreeText);
 
             return Ok(users);
         }
@@ -51,18 +51,18 @@ namespace Users.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUserAsync(CreateUserDto newUser)
+        public async Task<IActionResult> AddUserAsync(CreateUserDto newUser)
         {
-            var user =  _userService.AddUser(newUser);
+            var user =await  _userService.AddUserAsync(newUser);
 
             return Created($"users/{user.Id}", user);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, UpdateUserDto updateUser)
+        public async Task<IActionResult> UpdateUserAsync(int id, UpdateUserDto updateUser)
         {
             updateUser.Id = id;
-            var user = _userService.UpdateUser(updateUser);
+            var user = await _userService.UpdateUserAsync(updateUser);
 
             if (user == null)
             {
@@ -73,9 +73,9 @@ namespace Users.Api.Controllers
         }
 
         [HttpDelete]
-        public IActionResult RemoveUser([FromBody] int id)
+        public async Task<IActionResult> RemoveUserAsync([FromBody] int id)
         {
-            var user = _userService.RemoveUser(id);
+            var user = await _userService.RemoveUserAsync(id);
 
             if (!user)
             {

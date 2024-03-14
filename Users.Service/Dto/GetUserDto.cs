@@ -1,9 +1,8 @@
 ﻿namespace Users.Service.Dto
 {
-    public class CreateUserDto
+    public class GetUserDto
     {
-        public string Password { get; set; } = default!;
+        public int Id { get; set; }
         public string Login { get; set; } = default!;
- 
     }
 }

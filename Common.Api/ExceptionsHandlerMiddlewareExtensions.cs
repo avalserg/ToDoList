@@ -1,6 +1,6 @@
-﻿using Todos.Api.CustomMiddlewares;
+﻿using Microsoft.AspNetCore.Builder;
 
-namespace Todos.Api.Extensions
+namespace Common.Api
 {
     public static class ExceptionsHandlerMiddlewareExtensions
     {

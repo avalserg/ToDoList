@@ -7,8 +7,8 @@ namespace Users.Service.Validators
     {
         public CreateUserDtoValidators()
         {
-            RuleFor(e => e.Name).MinimumLength(2).MaximumLength(20).WithMessage("Name Error");
-            RuleFor(e => e).NotNull();
+            RuleFor(e => e.Login).MinimumLength(5).MaximumLength(20).NotEmpty();
+            RuleFor(e => e.Password).MinimumLength(5).MaximumLength(20).NotNull().NotEmpty();
         }
     }
 }

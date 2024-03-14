@@ -1,5 +1,3 @@
-using Common.Domain;
-using Common.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Todos.Service;
 using Todos.Service.Dto;
@@ -36,10 +34,10 @@ namespace Todos.Api.Controllers
             return Ok(todos);
         }
         [HttpGet("totalCount")]
-        public IActionResult GetCountToDo( string? labelFreeText)
+        public async Task<IActionResult> GetCountToDoAsync( string? labelFreeText)
         {
 
-            var todos = _todosService.Count(labelFreeText);
+            var todos = await _todosService.CountAsync(labelFreeText);
 
             return Ok(todos);
         }
@@ -59,9 +57,9 @@ namespace Todos.Api.Controllers
         }
 
         [HttpGet("{id}/IsDone")]
-        public IActionResult GetToDoByIdIsDone(int id)
+        public async Task<IActionResult> GetToDoByIdIsDoneAsync(int id, CancellationToken cancellationToken)
         {
-            var todo = _todosService.GetToDoById(id);
+            var todo =await _todosService.GetToDoByIdAsync(id, cancellationToken);
 
             if (todo == null)
             {
@@ -80,10 +78,10 @@ namespace Todos.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateToDo(int id,UpdateToDoDto updateToDo)
+        public async Task<IActionResult> UpdateToDoAsync(int id,UpdateToDoDto updateToDo)
         {
             updateToDo.Id = id;
-            var todo = _todosService.UpdateToDo(updateToDo);
+            var todo = await _todosService.UpdateToDoAsync(updateToDo);
 
             if (todo == null)
             {
@@ -94,10 +92,10 @@ namespace Todos.Api.Controllers
         }
 
         [HttpPatch("{id}/IsDone")]
-        public IActionResult UpdateToDoIsDone(int id, UpdateToDoDto updateToDo)
+        public async Task<IActionResult> UpdateToDoIsDoneAsync(int id, UpdateToDoDto updateToDo)
         {
             updateToDo.Id = id;
-            var todo = _todosService.UpdateToDo(updateToDo);
+            var todo = await _todosService.UpdateToDoAsync(updateToDo);
 
             if (todo == null)
             {
@@ -108,9 +106,9 @@ namespace Todos.Api.Controllers
         }
 
         [HttpDelete]
-        public IActionResult RemoveToDo([FromBody]int id)
+        public async Task<IActionResult> RemoveToDoAsync([FromBody]int id)
         {
-            var todo = _todosService.RemoveToDo(id);
+            var todo =await _todosService.RemoveToDoAsync(id);
             
             if (!todo)
             {

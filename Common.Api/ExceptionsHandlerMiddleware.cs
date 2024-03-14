@@ -1,12 +1,13 @@
 ﻿using System.Net;
 using System.Text.Json;
-using Todos.Service.Exceptions;
+using Common.Service.Exceptions;
+using Microsoft.AspNetCore.Http;
 
-namespace Todos.Api.CustomMiddlewares
+namespace Common.Api
 {
     public class ExceptionsHandlerMiddleware : IMiddleware
     {
-       
+
         public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
         {
             try
@@ -27,6 +28,10 @@ namespace Todos.Api.CustomMiddlewares
                         statusCode = HttpStatusCode.BadRequest;
                         result = JsonSerializer.Serialize(badRequestException.Message);
                         break;
+                    case ForbiddenExceptions forbiddenException:
+                        statusCode = HttpStatusCode.Forbidden;
+                        result = JsonSerializer.Serialize(forbiddenException.Message);
+                        break;
                 }
 
                 if (string.IsNullOrWhiteSpace(result))
@@ -40,6 +45,6 @@ namespace Todos.Api.CustomMiddlewares
             }
         }
 
-        
+
     }
 }
