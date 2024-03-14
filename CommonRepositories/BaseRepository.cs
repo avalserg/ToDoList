@@ -42,7 +42,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
     }    
     
     public async Task<TEntity[]> GetListAsync(int? offset = null, int? limit = null, Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, object>>? orderBy = null,
-        bool? descending = null)
+        bool? descending = null, CancellationToken cancellationToken=default)
     {
         var queryable = _applicationDbContext.Set<TEntity>().AsQueryable();
 
@@ -66,7 +66,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
             queryable = queryable.Take(limit.Value);
         }
 
-        return await queryable.ToArrayAsync();
+        return await queryable.ToArrayAsync(cancellationToken);
     }
 
     public TEntity? GetSingleOrDefault(Expression<Func<TEntity, bool>>? predicate = null)
@@ -86,10 +86,10 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         var set = _applicationDbContext.Set<TEntity>();
         return predicate == null ? set.Count() : set.Count(predicate);
     } 
-    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         var set = _applicationDbContext.Set<TEntity>();
-        return predicate == null ?await set.CountAsync() :await set.CountAsync(predicate);
+        return predicate == null ?await set.CountAsync(cancellationToken) :await set.CountAsync(predicate,cancellationToken);
     }
 
     public TEntity Add(TEntity entity)
@@ -99,11 +99,11 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         _applicationDbContext.SaveChanges();
         return entity;
     } 
-    public async Task<TEntity?> AddAsync(TEntity entity)
+    public async Task<TEntity?> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         var set = _applicationDbContext.Set<TEntity>();
-        await set.AddAsync(entity);
-        await _applicationDbContext.SaveChangesAsync();
+        await set.AddAsync(entity, cancellationToken);
+        await _applicationDbContext.SaveChangesAsync(cancellationToken);
         return entity;
     }
  
@@ -115,11 +115,11 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         _applicationDbContext.SaveChanges();
         return entity;
     }  
-    public async Task<TEntity> UpdateAsync(TEntity entity)
+    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         var set = _applicationDbContext.Set<TEntity>();
         set.Update(entity);
-        await  _applicationDbContext.SaveChangesAsync();
+        await  _applicationDbContext.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
@@ -129,10 +129,10 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         set.Remove(entity);
         return _applicationDbContext.SaveChanges() > 0;
     }  
-    public async Task<bool> DeleteAsync(TEntity entity)
+    public async Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         var set = _applicationDbContext.Set<TEntity>();
         set.Remove(entity);
-        return await _applicationDbContext.SaveChangesAsync() > 0;
+        return await _applicationDbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 }

@@ -17,16 +17,6 @@ namespace Users.Service
         {
             _userRepository = userRepository;
             _mapper = mapper;
-
-            //if (_userRepository.Count() > 0)
-            //{
-            //    return;
-            //}
-            ////!!
-            //for (var i = 1; i < 4; i++)
-            //{
-            //    _userRepository.Add(new User { Id = i, Login = $"User {i}" });
-            //}
         }
 
         public IReadOnlyCollection<User> GetAllUsers(int? offset, string? nameFreeText,  int? limit)
@@ -40,7 +30,7 @@ namespace Users.Service
                 nameFreeText==null ? null: u=>u.Login.Contains(nameFreeText),
                 u=>u.Id);
         }
-        public async Task<IReadOnlyCollection<GetUserDto>> GetAllUsersAsync(int? offset, string? nameFreeText,  int? limit)
+        public async Task<IReadOnlyCollection<GetUserDto>> GetAllUsersAsync(int? offset, string? nameFreeText, int? limit, bool? descending, CancellationToken cancellationToken)
         {
 
             limit ??= 10;
@@ -49,7 +39,9 @@ namespace Users.Service
                 offset, 
                 limit,
                 nameFreeText==null ? null: u=>u.Login.Contains(nameFreeText),
-                u=>u.Id));
+                u=>u.Id,
+                descending,
+                cancellationToken));
         }
 
         public async Task<GetUserDto?> GetUserByIdAsync(int id, CancellationToken cancellationToken)
@@ -64,9 +56,9 @@ namespace Users.Service
 
             return _userRepository.Add(userEntity);
         } 
-        public async Task<GetUserDto?> AddUserAsync(CreateUserDto user)
+        public async Task<GetUserDto?> AddUserAsync(CreateUserDto user, CancellationToken cancellationToken)
         {
-            if (await _userRepository.GetSingleOrDefaultAsync(u=>u.Login==user.Login.Trim())!=null)
+            if (await _userRepository.GetSingleOrDefaultAsync(u=>u.Login==user.Login.Trim(),cancellationToken)!=null)
             {
                 throw new BadRequestException("User login already exist");
             }
@@ -77,7 +69,7 @@ namespace Users.Service
                 UserRoleId = 1
             };
 
-            return _mapper.Map<GetUserDto>(await _userRepository.AddAsync(userEntity));
+            return _mapper.Map<GetUserDto>(await _userRepository.AddAsync(userEntity,cancellationToken));
         }
 
         public User? UpdateUser(UpdateUserDto newUser)
@@ -92,9 +84,9 @@ namespace Users.Service
             Log.Information($"User with id={newUser.Id} was updated");
             return _userRepository.Update(user);
         }
-        public async Task<GetUserDto?> UpdateUserAsync(UpdateUserDto newUser)
+        public async Task<GetUserDto?> UpdateUserAsync(UpdateUserDto newUser, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==newUser.Id);
+            var user = await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==newUser.Id, cancellationToken);
             if (user == null)
             {
                 Log.Error($"User {newUser.Id} does not exist");
@@ -102,7 +94,7 @@ namespace Users.Service
             }
             _mapper.Map(newUser, user);
             Log.Information($"User with id={newUser.Id} was updated");
-            return _mapper.Map<GetUserDto>(await _userRepository.UpdateAsync(user));
+            return _mapper.Map<GetUserDto>(await _userRepository.UpdateAsync(user, cancellationToken));
         }
         public int Count(string? nameFreeText)
         {
@@ -110,11 +102,11 @@ namespace Users.Service
                 ? null
                 : t => t.Login.Contains(nameFreeText, StringComparison.InvariantCultureIgnoreCase));
         }  
-        public async Task<int> CountAsync(string? nameFreeText)
+        public async Task<int> CountAsync(string? nameFreeText, CancellationToken cancellationToken)
         {
             return await _userRepository.CountAsync(nameFreeText == null
                 ? null
-                : t => t.Login.Contains(nameFreeText, StringComparison.InvariantCultureIgnoreCase));
+                : t => t.Login.Contains(nameFreeText, StringComparison.InvariantCultureIgnoreCase), cancellationToken);
         }
         public bool RemoveUser(int id)
         {
@@ -128,9 +120,9 @@ namespace Users.Service
             Log.Information($"User with id={id} was deleted");
             return _userRepository.Delete(userRemove);
         }
-        public async Task<bool> RemoveUserAsync(int id)
+        public async Task<bool> RemoveUserAsync(int id, CancellationToken cancellationToken)
         {
-            var userRemove = await _userRepository.GetSingleOrDefaultAsync(u => u.Id == id);
+            var userRemove = await _userRepository.GetSingleOrDefaultAsync(u => u.Id == id, cancellationToken);
             if (userRemove == null)
             {
                 Log.Error($"User with id={id} does not exist");
@@ -138,7 +130,7 @@ namespace Users.Service
             }
 
             Log.Information($"User with id={id} was deleted");
-            return await _userRepository.DeleteAsync(userRemove);
+            return await _userRepository.DeleteAsync(userRemove, cancellationToken);
         }
     }
 }

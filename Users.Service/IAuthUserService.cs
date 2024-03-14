@@ -4,5 +4,5 @@ namespace Users.Service;
 
 public interface IAuthUserService
 {
-    Task<string> GetJwtTokenAsync(AuthUserDto authUserDto);
+    Task<string> GetJwtTokenAsync(AuthUserDto authUserDto, CancellationToken cancellationToken);
 }

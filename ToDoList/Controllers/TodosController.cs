@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Todos.Service;
 using Todos.Service.Dto;
 
 namespace Todos.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class TodosController : ControllerBase
@@ -13,8 +15,6 @@ namespace Todos.Api.Controllers
         public TodosController(ITodosService todosService)
         {
             _todosService = todosService;
-            
-            
         }
 
         /// <summary>
@@ -25,19 +25,19 @@ namespace Todos.Api.Controllers
         /// <param name="offset">count missed values</param>
         /// <returns>List all todos</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllToDoAsync( int? offset, string? labelFreeText, int? limit)
+        public async Task<IActionResult> GetAllToDoAsync( int? offset, string? labelFreeText, int? limit,bool? descending,CancellationToken cancellationToken)
         {
-            var todos =await _todosService.GetAllToDoAsync(offset, labelFreeText, limit);
-            var countTodos = _todosService.Count(labelFreeText);
+            var todos =await _todosService.GetAllToDoAsync(offset, labelFreeText, limit,descending,cancellationToken);
+            var countTodos = await _todosService.CountAsync(labelFreeText,cancellationToken);
             HttpContext.Response.Headers.Append("X-Total-Count", countTodos.ToString());
 
             return Ok(todos);
         }
         [HttpGet("totalCount")]
-        public async Task<IActionResult> GetCountToDoAsync( string? labelFreeText)
+        public async Task<IActionResult> GetCountToDoAsync( string? labelFreeText,CancellationToken cancellationToken)
         {
 
-            var todos = await _todosService.CountAsync(labelFreeText);
+            var todos = await _todosService.CountAsync(labelFreeText,cancellationToken);
 
             return Ok(todos);
         }
@@ -70,18 +70,18 @@ namespace Todos.Api.Controllers
         }
         //owner id is required
         [HttpPost]
-        public async Task<IActionResult> AddToDoAsync(CreateTodoDto toDo)
+        public async Task<IActionResult> AddToDoAsync(CreateTodoDto toDo, CancellationToken cancellationToken)
         {
-            var todo = await _todosService.CreateToDoAsync(toDo);
+            var todo = await _todosService.CreateToDoAsync(toDo, cancellationToken);
             
             return Created($"todos/{todo.Id}", todo);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateToDoAsync(int id,UpdateToDoDto updateToDo)
+        public async Task<IActionResult> UpdateToDoAsync(int id,UpdateToDoDto updateToDo, CancellationToken cancellationToken)
         {
             updateToDo.Id = id;
-            var todo = await _todosService.UpdateToDoAsync(updateToDo);
+            var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
 
             if (todo == null)
             {
@@ -92,10 +92,10 @@ namespace Todos.Api.Controllers
         }
 
         [HttpPatch("{id}/IsDone")]
-        public async Task<IActionResult> UpdateToDoIsDoneAsync(int id, UpdateToDoDto updateToDo)
+        public async Task<IActionResult> UpdateToDoIsDoneAsync(int id, UpdateToDoDto updateToDo, CancellationToken cancellationToken)
         {
             updateToDo.Id = id;
-            var todo = await _todosService.UpdateToDoAsync(updateToDo);
+            var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
 
             if (todo == null)
             {
@@ -106,9 +106,9 @@ namespace Todos.Api.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> RemoveToDoAsync([FromBody]int id)
+        public async Task<IActionResult> RemoveToDoAsync([FromBody]int id, CancellationToken cancellationToken)
         {
-            var todo =await _todosService.RemoveToDoAsync(id);
+            var todo =await _todosService.RemoveToDoAsync(id, cancellationToken);
             
             if (!todo)
             {

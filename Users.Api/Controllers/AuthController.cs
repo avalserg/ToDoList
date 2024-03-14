@@ -19,9 +19,9 @@ namespace Users.Api.Controllers
         }
         [AllowAnonymous]
         [HttpPost("CreateJwtToken")]
-        public async Task<IActionResult> CreateJwtToken(AuthUserDto authUserDto)
+        public async Task<IActionResult> CreateJwtToken(AuthUserDto authUserDto, CancellationToken cancellationToken)
         {
-            var createdToken = await _authUserService.GetJwtTokenAsync(authUserDto);
+            var createdToken = await _authUserService.GetJwtTokenAsync(authUserDto, cancellationToken);
             return Ok(createdToken);
 
         }

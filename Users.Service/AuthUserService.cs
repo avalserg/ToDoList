@@ -26,16 +26,16 @@ namespace Users.Service
             _userRoleRepository = userRoleRepository;
         }
 
-        public async Task<string> GetJwtTokenAsync(AuthUserDto authUserDto)
+        public async Task<string> GetJwtTokenAsync(AuthUserDto authUserDto, CancellationToken cancellationToken)
         {
             var jwtOptions = _configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
-            var user = await _user.GetSingleOrDefaultAsync(u => u.Login == authUserDto.Login.Trim());
+            var user = await _user.GetSingleOrDefaultAsync(u => u.Login == authUserDto.Login.Trim(), cancellationToken);
             if (user == null)
             {
                 throw new NotFoundException($"User with login {authUserDto.Login} don't exist");
             }
 
-            var role = await _userRoleRepository.GetSingleOrDefaultAsync(r => r.Id == user.UserRoleId);
+            var role = await _userRoleRepository.GetSingleOrDefaultAsync(r => r.Id == user.UserRoleId, cancellationToken);
             
             if (!PasswordHashUtil.Verify(authUserDto.Password, user.PasswordHash))
             {

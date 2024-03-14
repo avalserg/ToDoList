@@ -46,14 +46,16 @@ namespace Todos.Service
 
             return list;
         }    
-        public async Task<IReadOnlyCollection<Common.Domain.Todos>> GetAllToDoAsync(int? offset, string? labelFreeText, int? limit)
+        public async Task<IReadOnlyCollection<Common.Domain.Todos>> GetAllToDoAsync(int? offset, string? labelFreeText, int? limit, bool? descending,CancellationToken cancellationToken)
         {
             limit ??= 10;
             var list = await _todosRepository.GetListAsync(
                 offset,
                 limit,
                 labelFreeText == null ? null : t => t.Label.Contains(labelFreeText),
-                t => t.Id);
+                t => t.Id,
+                descending,
+                cancellationToken);
 
             return list;
         }
@@ -85,9 +87,9 @@ namespace Todos.Service
            
             return _todosRepository.Add(todoEntity);
         } 
-        public async Task<Common.Domain.Todos?> CreateToDoAsync(CreateTodoDto createToDo)
+        public async Task<Common.Domain.Todos?> CreateToDoAsync(CreateTodoDto createToDo, CancellationToken cancellationToken = default)
         {
-            var owner = await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==createToDo.OwnerId);
+            var owner = await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==createToDo.OwnerId,cancellationToken);
             if (owner is null)
             {
                 Log.Error($"User {createToDo.OwnerId} does not exist");
@@ -101,7 +103,7 @@ namespace Todos.Service
 
             Log.Information($"Todo with id={createToDo} was created");
            
-            return await _todosRepository.AddAsync(todoEntity);
+            return await _todosRepository.AddAsync(todoEntity,cancellationToken);
         }
         public Common.Domain.Todos? UpdateToDo(UpdateToDoDto updateToDo)
         {
@@ -128,16 +130,16 @@ namespace Todos.Service
 
             return _todosRepository.Update(todoEntity);
         }  
-        public async Task<Common.Domain.Todos?> UpdateToDoAsync(UpdateToDoDto updateToDo)
+        public async Task<Common.Domain.Todos?> UpdateToDoAsync(UpdateToDoDto updateToDo, CancellationToken cancellationToken = default)
         {
-            var todoEntity =await _todosRepository.GetSingleOrDefaultAsync(t=>t.Id==updateToDo.Id);
+            var todoEntity =await _todosRepository.GetSingleOrDefaultAsync(t=>t.Id==updateToDo.Id, cancellationToken);
             if (todoEntity == null)
             {
                 Log.Error($"Todo {updateToDo.Id} does not exist");
                 throw new NotFoundException();
             }
 
-            var owner = await _userRepository.GetSingleOrDefaultAsync(u => u.Id == todoEntity.OwnerId);
+            var owner = await _userRepository.GetSingleOrDefaultAsync(u => u.Id == todoEntity.OwnerId,cancellationToken);
             if (owner is null)
             {
                 Log.Error($"User {todoEntity.OwnerId} does not exist");
@@ -151,7 +153,7 @@ namespace Todos.Service
 
             Log.Information($"Todo with id={todoEntity.Id} was updated");
 
-            return await _todosRepository.UpdateAsync(todoEntity);
+            return await _todosRepository.UpdateAsync(todoEntity, cancellationToken);
         }
 
         public int Count(string? labelFreeText)
@@ -160,11 +162,11 @@ namespace Todos.Service
                 ? null
                 : t => t.Label.Contains(labelFreeText));
         } 
-        public async Task<int> CountAsync(string? labelFreeText)
+        public async Task<int> CountAsync(string? labelFreeText, CancellationToken cancellationToken = default)
         {
             return await _todosRepository.CountAsync(labelFreeText == null
                 ? null
-                : t => t.Label.Contains(labelFreeText));
+                : t => t.Label.Contains(labelFreeText), cancellationToken);
         }
 
         public bool RemoveToDo(int id)
@@ -180,9 +182,9 @@ namespace Todos.Service
             
             return _todosRepository.Delete(todoToRemove);
         }
-        public async Task<bool> RemoveToDoAsync(int id)
+        public async Task<bool> RemoveToDoAsync(int id, CancellationToken cancellationToken = default)
         {
-            var todoToRemove =await _todosRepository.GetSingleOrDefaultAsync(t => t.Id == id);
+            var todoToRemove =await _todosRepository.GetSingleOrDefaultAsync(t => t.Id == id, cancellationToken);
             if (todoToRemove == null)
             {
                 Log.Error($"Todo with id={id} does not exist");
@@ -191,7 +193,7 @@ namespace Todos.Service
             
             Log.Information($"Todo with id={id} was deleted");
             
-            return await _todosRepository.DeleteAsync(todoToRemove);
+            return await _todosRepository.DeleteAsync(todoToRemove, cancellationToken);
         }
 
     }
