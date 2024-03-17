@@ -87,7 +87,7 @@ namespace Common.Repositories.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Common.Domain.UserRole", b =>
+            modelBuilder.Entity("Common.Domain.Roles", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,7 +102,7 @@ namespace Common.Repositories.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Common.Domain.Todos", b =>
@@ -118,13 +118,13 @@ namespace Common.Repositories.Migrations
 
             modelBuilder.Entity("Common.Domain.User", b =>
                 {
-                    b.HasOne("Common.Domain.UserRole", "UserRole")
+                    b.HasOne("Common.Domain.Roles", "Roles")
                         .WithMany("Users")
                         .HasForeignKey("UserRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UserRole");
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("Common.Domain.User", b =>
@@ -132,7 +132,7 @@ namespace Common.Repositories.Migrations
                     b.Navigation("Todos");
                 });
 
-            modelBuilder.Entity("Common.Domain.UserRole", b =>
+            modelBuilder.Entity("Common.Domain.Roles", b =>
                 {
                     b.Navigation("Users");
                 });

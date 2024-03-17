@@ -1,4 +1,4 @@
-﻿namespace Users.Service;
+﻿namespace Authorization.Service;
 
 public class JwtOptions 
 {

@@ -73,14 +73,24 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
     {
         var set = _applicationDbContext.Set<TEntity>();
         return predicate == null ? set.SingleOrDefault() : set.SingleOrDefault(predicate);
-    }
+    } 
+   
 
     public async Task<TEntity?> GetSingleOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         var set = _applicationDbContext.Set<TEntity>();
         return predicate == null ? await set.SingleOrDefaultAsync(cancellationToken) : await set.SingleOrDefaultAsync(predicate, cancellationToken);
+    } 
+    public async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
+    {
+        var set = _applicationDbContext.Set<TEntity>();
+        return predicate == null ? await set.SingleAsync(cancellationToken) : await set.SingleAsync(predicate, cancellationToken);
     }
-
+    public async Task<TEntity?> GetFirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
+    {
+        var set = _applicationDbContext.Set<TEntity>();
+        return predicate == null ? await set.FirstOrDefaultAsync(cancellationToken) : await set.FirstOrDefaultAsync(predicate,cancellationToken);
+    }
     public int Count(Expression<Func<TEntity, bool>>? predicate = null)
     {
         var set = _applicationDbContext.Set<TEntity>();

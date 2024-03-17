@@ -1,9 +1,8 @@
-﻿namespace Users.Service.Dto
+﻿namespace Authorization.Service.Dtos
 {
-    public class CreateUserDto
+    public class AuthUserDto
     {
         public string Password { get; set; } = default!;
         public string Login { get; set; } = default!;
- 
     }
 }

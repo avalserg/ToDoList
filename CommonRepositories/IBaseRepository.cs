@@ -9,7 +9,11 @@ public interface IBaseRepository<TEntity> where TEntity : class, new()
         bool? descending = null, CancellationToken cancellationToken = default);
     Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
     Task<TEntity?> GetSingleOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null,
+        CancellationToken cancellationToken = default);  
+    Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
+    Task<TEntity?> GetFirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
+
     Task<TEntity?> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
 

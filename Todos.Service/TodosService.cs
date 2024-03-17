@@ -12,27 +12,16 @@ namespace Todos.Service
     {
        
         private readonly IBaseRepository<Common.Domain.Todos> _todosRepository;
-        private readonly IBaseRepository<User> _userRepository;
+        private readonly IBaseRepository<ApplicationUser> _userRepository;
         private readonly IMapper _mapper;
     
 
-        public TodosService(IBaseRepository<Common.Domain.Todos> todosRepository, IBaseRepository<User> userRepository,IMapper mapper)
+        public TodosService(IBaseRepository<Common.Domain.Todos> todosRepository, IBaseRepository<ApplicationUser> userRepository,IMapper mapper)
         {
             _todosRepository = todosRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             
-            //if (_todosRepository.Count()>0)
-            //{
-            //    return;
-            //}
-           
-            //for (var i = 1; i < 4; i++)
-            //{
-            //    _userRepository.Add(new User {  Login = $"User {i}" });
-            //    _todosRepository.Add(new Common.Domain.Todos {OwnerId = i, Label = $"Todo {i}", IsDone = false, CreatedDate = DateTime.Now, UpdateDate = default });
-            //}
-        
         }
        
         public IReadOnlyCollection<Common.Domain.Todos> GetAllToDo(int? offset, string? labelFreeText, int? limit)

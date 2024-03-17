@@ -8,7 +8,7 @@
         public bool IsDone { get; set; }
         public string Label { get; set; } = default!;
         public int OwnerId { get; set; }
-        public User User { get; set; }
+        public ApplicationUser User { get; set; } = default!;
 
     }
 

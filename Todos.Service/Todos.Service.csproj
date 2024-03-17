@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Common.Service\Common.Service.csproj" />
     <ProjectReference Include="..\CommonRepositories\Common.Repositories.csproj" />
     <ProjectReference Include="..\Todos.Domain\Todos.Domain.csproj" />
+    <ProjectReference Include="..\Users.Service\Users.Service.csproj" />
   </ItemGroup>
 
 </Project>

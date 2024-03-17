@@ -2,24 +2,28 @@
 using Common.Domain;
 using Common.Repositories;
 using Common.Service.Exceptions;
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 using Users.Service.Dto;
+using Users.Service.Dtos;
 using Users.Service.Utils;
 
 namespace Users.Service
 {
     public class UserService:IUserService
     {
-        private readonly IBaseRepository<User> _userRepository;
+        private readonly IBaseRepository<ApplicationUser> _userRepository;
+        private readonly IBaseRepository<ApplicationUserRole> _userRoles;
         private readonly IMapper _mapper;
 
-        public UserService(IBaseRepository<User> userRepository, IMapper mapper)
+        public UserService(IBaseRepository<ApplicationUser> userRepository,IBaseRepository<ApplicationUserRole> userRoles ,IMapper mapper)
         {
             _userRepository = userRepository;
+            _userRoles = userRoles;
             _mapper = mapper;
         }
 
-        public IReadOnlyCollection<User> GetAllUsers(int? offset, string? nameFreeText,  int? limit)
+        public IReadOnlyCollection<ApplicationUser> GetAllUsers(int? offset, string? nameFreeText,  int? limit)
         {
 
             limit ??= 10;
@@ -48,11 +52,16 @@ namespace Users.Service
         {
            
             return _mapper.Map<GetUserDto>( await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==id, cancellationToken));
+        } 
+        public async Task<GetUserDto?> GetUserByLoginAsync(string login, CancellationToken cancellationToken)
+        {
+           
+            return _mapper.Map<GetUserDto>( await _userRepository.GetSingleOrDefaultAsync(u=>u.Login==login, cancellationToken));
         }
 
-        public User AddUser(CreateUserDto user)
+        public ApplicationUser AddUser(CreateUserDto user)
         {
-            var userEntity = _mapper.Map<CreateUserDto, User>(user);
+            var userEntity = _mapper.Map<CreateUserDto, ApplicationUser>(user);
 
             return _userRepository.Add(userEntity);
         } 
@@ -62,17 +71,21 @@ namespace Users.Service
             {
                 throw new BadRequestException("User login already exist");
             }
-            var userEntity = new User()
+            //!!!  Get Role Admin from Db
+            var userRole = await _userRoles.GetSingleOrDefaultAsync(r => r.Name == "Client",cancellationToken); 
+
+            var userEntity = new ApplicationUser()
             {
                 Login = user.Login.Trim(),
-                PasswordHash = PasswordHashUtil.Generate(user.Password),
-                UserRoleId = 1
+                PasswordHash = PasswordHashUtil.HashPassword(user.Password),
+                // Add new user Role Client
+                Roles = new []{new ApplicationUserApplicationRole(){ApplicatonUserRoleId = userRole!.Id}}
             };
 
             return _mapper.Map<GetUserDto>(await _userRepository.AddAsync(userEntity,cancellationToken));
         }
 
-        public User? UpdateUser(UpdateUserDto newUser)
+        public ApplicationUser? UpdateUser(UpdateUserDto newUser)
         {
             var user = _userRepository.GetSingleOrDefault(u=>u.Id==newUser.Id);
             if (user == null)
@@ -94,6 +107,19 @@ namespace Users.Service
             }
             _mapper.Map(newUser, user);
             Log.Information($"User with id={newUser.Id} was updated");
+            return _mapper.Map<GetUserDto>(await _userRepository.UpdateAsync(user, cancellationToken));
+        } 
+        public async Task<GetUserDto?> UpdateUserPasswordAsync(UpdateUserPasswordDto newUserPassword, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.GetSingleOrDefaultAsync(u=>u.Id== newUserPassword.Id, cancellationToken);
+            if (user == null)
+            {
+                Log.Error($"User {newUserPassword.Id} does not exist");
+                return null;
+            }
+            _mapper.Map(newUserPassword, user);
+            user.PasswordHash = PasswordHashUtil.HashPassword(newUserPassword.PasswordHash);
+            Log.Information($"User password with id={newUserPassword.Id} was updated");
             return _mapper.Map<GetUserDto>(await _userRepository.UpdateAsync(user, cancellationToken));
         }
         public int Count(string? nameFreeText)

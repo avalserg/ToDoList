@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Common.Domain;
 using Todos.Service.Dto;
+using Users.Service.Dto;
 
 namespace Todos.Service.Mapping
 {
@@ -9,6 +11,7 @@ namespace Todos.Service.Mapping
         {
             CreateMap<UpdateToDoDto, Common.Domain.Todos>();
             CreateMap<CreateTodoDto, Common.Domain.Todos>();
+            CreateMap<ApplicationUser, GetUserDto>();
         }
     }
 }

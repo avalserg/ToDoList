@@ -1,7 +1,7 @@
-﻿using System.Xml;
-using AutoMapper;
+﻿using AutoMapper;
 using Common.Domain;
 using Users.Service.Dto;
+using Users.Service.Dtos;
 
 namespace Users.Service.Mapping
 {
@@ -9,9 +9,10 @@ namespace Users.Service.Mapping
     {
        public AutoMapperProfile()
         {
-            CreateMap<UpdateUserDto, User>();
-            CreateMap<CreateUserDto, User>();
-            CreateMap<User, GetUserDto>();
+            CreateMap<UpdateUserDto, ApplicationUser>();
+            CreateMap<UpdateUserPasswordDto, ApplicationUser>();
+            CreateMap<CreateUserDto, ApplicationUser>();
+            CreateMap<ApplicationUser, GetUserDto>();
         }
     }
 }

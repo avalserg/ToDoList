@@ -12,7 +12,7 @@ namespace Common.Repositories.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "UserRoles",
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -24,11 +24,12 @@ namespace Common.Repositories.Migrations
                     table.PrimaryKey("PK_UserRoles", x => x.Id);
                 });
             migrationBuilder.InsertData(
-                table: "UserRoles",
+                table: "Roles",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    {1,"Admin"}
+                    {1,"Admin"},
+                    {2,"Client"}
                 }
             );
             migrationBuilder.CreateTable(
@@ -47,11 +48,11 @@ namespace Common.Repositories.Migrations
                     table.ForeignKey(
                         name: "FK_Users_UserRoles_UserRoleId",
                         column: x => x.UserRoleId,
-                        principalTable: "UserRoles",
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
+            
             migrationBuilder.CreateTable(
                 name: "Todos",
                 columns: table => new
@@ -102,7 +103,7 @@ namespace Common.Repositories.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
+                name: "Roles");
         }
     }
 }
