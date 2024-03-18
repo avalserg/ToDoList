@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-
-namespace Users.Service.Utils
+﻿namespace Authorization.Service.Utils
 {
     public static class PasswordHashUtil
     {

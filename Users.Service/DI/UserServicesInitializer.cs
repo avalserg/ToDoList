@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Authorization.Service;
+using Common.Service;
 using Users.Service.Mapping;
 
 namespace Users.Service.DI
@@ -23,6 +24,8 @@ namespace Users.Service.DI
         {
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IAuthUserService, AuthUserService>();
+            services.AddTransient<ICurrentUserSerice, CurrentUserService>();
+            services.AddHttpContextAccessor();
         }
         public static void AddAutoMapperService(this IServiceCollection services)
         {

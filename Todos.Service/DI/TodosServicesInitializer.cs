@@ -1,14 +1,10 @@
-﻿using System.Reflection;
-using Authorization.Service;
-using Common.Domain;
+﻿using Common.Domain;
 using Common.Repositories;
-using Common.Repositories.Context;
+using Common.Service;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using Todos.Service.Mapping;
-using Users.Service;
 
 namespace Todos.Service.DI
 {
@@ -16,9 +12,6 @@ namespace Todos.Service.DI
     {
         public static void InitializeRepositories(this IServiceCollection services)
         {
-            services.AddTransient<IBaseRepository<ApplicationUser>, BaseRepository<ApplicationUser>>();
-            services.AddTransient<IBaseRepository<ApplicationUserApplicationRole>, BaseRepository<ApplicationUserApplicationRole>>();
-            services.AddTransient<IBaseRepository<ApplicationUserRole>, BaseRepository<ApplicationUserRole>>();
             services.AddTransient<IBaseRepository<Common.Domain.Todos>, BaseRepository<Common.Domain.Todos>>();
             services.AddTransient<IBaseRepository<ApplicationUser>, BaseRepository<ApplicationUser>>();
         }
@@ -26,7 +19,9 @@ namespace Todos.Service.DI
         public static void InitializeServices(this IServiceCollection services)
         {
             services.AddTransient<ITodosService, TodosService>();
-            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ICurrentUserSerice, CurrentUserService>();
+            services.AddHttpContextAccessor();
+            
            
         }
         public static void AddAutoMapperService(this IServiceCollection services)

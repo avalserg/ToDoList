@@ -2,13 +2,13 @@
 using System.Security.Claims;
 using System.Text;
 using Authorization.Service.Dtos;
+using Authorization.Service.Utils;
 using Common.Domain;
 using Common.Repositories;
 using Common.Service.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Users.Service;
-using Users.Service.Utils;
+
 
 namespace Authorization.Service
 {

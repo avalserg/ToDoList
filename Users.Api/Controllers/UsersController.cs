@@ -1,9 +1,6 @@
-using System.Security.Claims;
-using Authorization.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Service;
-using Users.Service.Dto;
 using Users.Service.Dtos;
 
 namespace Users.Api.Controllers
@@ -15,15 +12,13 @@ namespace Users.Api.Controllers
     {
       
         private readonly IUserService _userService;
-      
-
-
+        
         public UsersController( IUserService userService)
         {
             _userService = userService;
-            
+           
         }
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync(int? offset, string? nameFreeText, int? limit, bool? descending, CancellationToken cancellationToken)
         {
@@ -32,7 +27,7 @@ namespace Users.Api.Controllers
             HttpContext.Response.Headers.Append("X-Total-Count", countUsers.ToString());
             return Ok(users);
         }
-       
+        [AllowAnonymous]
         [HttpGet("totalCount")]
         public async Task<IActionResult> GetCountUserAsync(string? labelFreeText, CancellationToken cancellationToken)
         {
@@ -69,23 +64,14 @@ namespace Users.Api.Controllers
         {
             updateUser.Id = id;
             var updatedUser = await _userService.GetUserByIdAsync(id, cancellationToken);
+            
             if (updatedUser == null)
             {
                 return NotFound($"Пользователь с ID = {id} отсутствует");
             }
-
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken);
+            
+            updatedUser = await _userService.UpdateUserAsync(updateUser, cancellationToken);
            
-            if (updatedUser.Login == currentLoggedInUser!.Login||
-                currentLoggedInUser.Roles.Any(r=>r.ApplicationUserRole.Name=="Admin"))
-            {
-                updatedUser = await _userService.UpdateUserAsync(updateUser, cancellationToken);
-            }
-            else
-            {
-                return BadRequest($"User {updatedUser.Login} with {id} не может быть изменен юзером {currentLoggedInUser.Login}");
-            }
             return Ok(updatedUser);
         }
         
@@ -98,19 +84,9 @@ namespace Users.Api.Controllers
             {
                 return NotFound($"Пользователь с ID = {id} отсутствует");
             }
-
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken);
-
-            if (updatedUser.Login == currentLoggedInUser!.Login ||
-                currentLoggedInUser.Roles.Any(r => r.ApplicationUserRole.Name == "Admin"))
-            {
-                updatedUser = await _userService.UpdateUserPasswordAsync(updateUserPassword, cancellationToken);
-            }
-            else
-            {
-                return BadRequest($"Пароль пользователя {updatedUser.Login} with {id} не может быть изменен юзером {currentLoggedInUser.Login}");
-            }
+            
+            updatedUser = await _userService.UpdateUserPasswordAsync(updateUserPassword, cancellationToken);
+            
             return Ok(updatedUser);
             
         }

@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using Common.Domain;
 using Common.Repositories;
+using Common.Service;
 using Common.Service.Exceptions;
-using Microsoft.AspNetCore.Identity;
 using Serilog;
-using Users.Service.Dto;
 using Users.Service.Dtos;
 using Users.Service.Utils;
 
@@ -15,25 +14,16 @@ namespace Users.Service
         private readonly IBaseRepository<ApplicationUser> _userRepository;
         private readonly IBaseRepository<ApplicationUserRole> _userRoles;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserSerice _currentUserSerice;
 
-        public UserService(IBaseRepository<ApplicationUser> userRepository,IBaseRepository<ApplicationUserRole> userRoles ,IMapper mapper)
+        public UserService(IBaseRepository<ApplicationUser> userRepository,IBaseRepository<ApplicationUserRole> userRoles ,IMapper mapper, ICurrentUserSerice currentUserSerice)
         {
             _userRepository = userRepository;
             _userRoles = userRoles;
             _mapper = mapper;
+            _currentUserSerice = currentUserSerice;
         }
 
-        public IReadOnlyCollection<ApplicationUser> GetAllUsers(int? offset, string? nameFreeText,  int? limit)
-        {
-
-            limit ??= 10;
-            
-            return _userRepository.GetList(
-                offset, 
-                limit,
-                nameFreeText==null ? null: u=>u.Login.Contains(nameFreeText),
-                u=>u.Id);
-        }
         public async Task<IReadOnlyCollection<GetUserDto>> GetAllUsersAsync(int? offset, string? nameFreeText, int? limit, bool? descending, CancellationToken cancellationToken)
         {
 
@@ -53,18 +43,7 @@ namespace Users.Service
            
             return _mapper.Map<GetUserDto>( await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==id, cancellationToken));
         } 
-        public async Task<GetUserDto?> GetUserByLoginAsync(string login, CancellationToken cancellationToken)
-        {
-           
-            return _mapper.Map<GetUserDto>( await _userRepository.GetSingleOrDefaultAsync(u=>u.Login==login, cancellationToken));
-        }
-
-        public ApplicationUser AddUser(CreateUserDto user)
-        {
-            var userEntity = _mapper.Map<CreateUserDto, ApplicationUser>(user);
-
-            return _userRepository.Add(userEntity);
-        } 
+        
         public async Task<GetUserDto?> AddUserAsync(CreateUserDto user, CancellationToken cancellationToken)
         {
             if (await _userRepository.GetSingleOrDefaultAsync(u=>u.Login==user.Login.Trim(),cancellationToken)!=null)
@@ -85,25 +64,21 @@ namespace Users.Service
             return _mapper.Map<GetUserDto>(await _userRepository.AddAsync(userEntity,cancellationToken));
         }
 
-        public ApplicationUser? UpdateUser(UpdateUserDto newUser)
-        {
-            var user = _userRepository.GetSingleOrDefault(u=>u.Id==newUser.Id);
-            if (user == null)
-            {
-                Log.Error($"User {newUser.Id} does not exist");
-                return null;
-            }
-            _mapper.Map(newUser, user);
-            Log.Information($"User with id={newUser.Id} was updated");
-            return _userRepository.Update(user);
-        }
         public async Task<GetUserDto?> UpdateUserAsync(UpdateUserDto newUser, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetSingleOrDefaultAsync(u=>u.Id==newUser.Id, cancellationToken);
             if (user == null)
             {
                 Log.Error($"User {newUser.Id} does not exist");
-                return null;
+                throw new NotFoundException();
+            }
+            
+            var currentLoggedInUserId = _currentUserSerice.CurrentUserId;
+            var currentLoggedInUserRoles = _currentUserSerice.CurrentUserRoles;
+            if (currentLoggedInUserRoles.Any(r => r != "Admin") && user.Id.ToString() != currentLoggedInUserId)
+            {
+                Log.Error($"User info {user.Login} cannot be updated by current User");
+                throw new BadRequestException();
             }
             _mapper.Map(newUser, user);
             Log.Information($"User with id={newUser.Id} was updated");
@@ -117,35 +92,26 @@ namespace Users.Service
                 Log.Error($"User {newUserPassword.Id} does not exist");
                 return null;
             }
+            var currentLoggedInUserId = _currentUserSerice.CurrentUserId;
+            var currentLoggedInUserRoles = _currentUserSerice.CurrentUserRoles;
+            if (currentLoggedInUserRoles.Any(r => r != "Admin") && user.Id.ToString() != currentLoggedInUserId)
+            {
+                Log.Error($"User password {user.Login} cannot be updated by current User");
+                throw new BadRequestException();
+            }
             _mapper.Map(newUserPassword, user);
             user.PasswordHash = PasswordHashUtil.HashPassword(newUserPassword.PasswordHash);
             Log.Information($"User password with id={newUserPassword.Id} was updated");
             return _mapper.Map<GetUserDto>(await _userRepository.UpdateAsync(user, cancellationToken));
         }
-        public int Count(string? nameFreeText)
-        {
-            return _userRepository.Count(nameFreeText == null
-                ? null
-                : t => t.Login.Contains(nameFreeText, StringComparison.InvariantCultureIgnoreCase));
-        }  
+       
         public async Task<int> CountAsync(string? nameFreeText, CancellationToken cancellationToken)
         {
             return await _userRepository.CountAsync(nameFreeText == null
                 ? null
                 : t => t.Login.Contains(nameFreeText, StringComparison.InvariantCultureIgnoreCase), cancellationToken);
         }
-        public bool RemoveUser(int id)
-        {
-            var userRemove = _userRepository.GetSingleOrDefault(u => u.Id == id);
-            if (userRemove == null)
-            {
-                Log.Error($"User with id={id} does not exist");
-                return false;
-            }
-
-            Log.Information($"User with id={id} was deleted");
-            return _userRepository.Delete(userRemove);
-        }
+      
         public async Task<bool> RemoveUserAsync(int id, CancellationToken cancellationToken)
         {
             var userRemove = await _userRepository.GetSingleOrDefaultAsync(u => u.Id == id, cancellationToken);
@@ -154,7 +120,13 @@ namespace Users.Service
                 Log.Error($"User with id={id} does not exist");
                 return false;
             }
-
+            var currentLoggedInUserId = _currentUserSerice.CurrentUserId;
+            var currentLoggedInUserRoles = _currentUserSerice.CurrentUserRoles;
+            if (currentLoggedInUserRoles.Any(r => r != "Admin") && userRemove.Id.ToString() != currentLoggedInUserId)
+            {
+                Log.Error($"User {userRemove.Login} cannot be deleted by current User");
+                throw new BadRequestException();
+            }
             Log.Information($"User with id={id} was deleted");
             return await _userRepository.DeleteAsync(userRemove, cancellationToken);
         }

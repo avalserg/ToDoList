@@ -1,9 +1,8 @@
+using Common.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Todos.Service;
 using Todos.Service.Dto;
-using Users.Service;
 
 namespace Todos.Api.Controllers
 {
@@ -13,12 +12,11 @@ namespace Todos.Api.Controllers
     public class TodosController : ControllerBase
     {
         private readonly ITodosService _todosService;
-        private readonly IUserService _userService;
-
-        public TodosController(ITodosService todosService, IUserService userService)
+        
+        public TodosController(ITodosService todosService)
         {
             _todosService = todosService;
-            _userService = userService;
+           
         }
 
         /// <summary>
@@ -27,26 +25,18 @@ namespace Todos.Api.Controllers
         /// <param name="labelFreeText">search by label field</param>
         /// <param name="limit">max count return values</param>
         /// <param name="offset">count missed values</param>
+        /// <param name="descending">sort asc desc</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List all todos</returns>
         [HttpGet]
         public async Task<IActionResult> GetAllToDoAsync( int? offset, string? labelFreeText, int? limit,bool? descending,CancellationToken cancellationToken)
         {
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken);
-
-            if (currentLoggedInUser!.Roles.Any(r => r.ApplicationUserRole.Name == "Admin"))
-            {
-                 var todos =await _todosService.GetAllToDoAsync(offset, labelFreeText, limit,descending,cancellationToken);
-                 var countTodos = await _todosService.CountAsync(labelFreeText,cancellationToken);
-                 HttpContext.Response.Headers.Append("X-Total-Count", countTodos.ToString());
-                 return Ok(todos);
-            }
-            else
-            {
-                var todos = await _todosService.GetAllToDoAsync(offset, labelFreeText, limit, descending, cancellationToken);
-                var resTodo = todos.Where(t => t.OwnerId == currentLoggedInUser.Id);
-                return Ok(resTodo);
-            }
+          
+            var todos =await _todosService.GetAllToDoAsync(offset, labelFreeText, limit,descending,cancellationToken);
+            var countTodos = await _todosService.CountAsync(labelFreeText,cancellationToken);
+            HttpContext.Response.Headers.Append("X-Total-Count", countTodos.ToString());
+            return Ok(todos);
+           
         }
         [HttpGet("totalCount")]
         public async Task<IActionResult> GetCountToDoAsync( string? labelFreeText,CancellationToken cancellationToken)
@@ -65,15 +55,8 @@ namespace Todos.Api.Controllers
             {
                 return NotFound($"Запись с ID = {id} отсутствует");
             }
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = (await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken))!;
-            
-            if (currentLoggedInUser.Id == getTodo.OwnerId ||
-                currentLoggedInUser.Roles.Any(r => r.ApplicationUserRole.Name == "Admin"))
-            {
-                return Ok(getTodo);
-            }
-            return BadRequest($"Запись с ID = {id} не может быть просмотрена пользователем {currentLoggedInUser.Login}");
+           
+            return Ok(getTodo);
             
         }
 
@@ -85,16 +68,9 @@ namespace Todos.Api.Controllers
             {
                 return NotFound($"Запись с ID = {id} отсутствует");
             }
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = (await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken))!;
-
-            if (currentLoggedInUser.Id == getTodo.OwnerId ||
-                currentLoggedInUser.Roles.Any(r => r.ApplicationUserRole.Name == "Admin"))
-            {
-                return Ok(new { getTodo.Id, getTodo.IsDone });
-            }
-            return BadRequest($"Запись с ID = {id} не может быть просмотрена пользователем {currentLoggedInUser.Login}");
-           
+         
+            return Ok(new { getTodo.Id, getTodo.IsDone });
+            
         }
         
         [HttpPost]
@@ -110,21 +86,14 @@ namespace Todos.Api.Controllers
         {
             updateToDo.Id = id;
             var updateTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
-            if (updateTodo==null)
+            if (updateTodo == null)
             {
                 return NotFound($"Запись с ID = {id} отсутствует");
             }
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = (await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken))!;
-            if (currentLoggedInUser.Id == updateToDo.OwnerId ||
-                currentLoggedInUser.Roles.Any(r => r.ApplicationUserRole.Name == "Admin"))
-            {
-                var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
-                return Ok(todo);
-            }
-           
-            return BadRequest($"Todo with {id} не может быть изменен юзером {currentLoggedInUser.Login}");
-            
+
+            var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
+            return Ok(todo);
+
         }
 
         [HttpPatch("{id}/IsDone")]
@@ -136,16 +105,10 @@ namespace Todos.Api.Controllers
             {
                 return NotFound($"Запись с ID = {id} отсутствует");
             }
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = (await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken))!;
-            if (currentLoggedInUser.Id == getTodo.OwnerId ||
-                currentLoggedInUser.Roles.Any(r => r.ApplicationUserRole.Name == "Admin"))
-            {
-                var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
-                return Ok(new { todo.Id, todo.IsDone });
-            }
 
-            return BadRequest($"Todo with {id} не может быть изменен юзером {currentLoggedInUser.Login}");
+            var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
+            return Ok(new { todo.Id, todo.IsDone });
+
         }
 
         [HttpDelete]
@@ -156,17 +119,10 @@ namespace Todos.Api.Controllers
             {
                 return NotFound($"Запись с ID = {id} отсутствует");
             }
-            var currentLoggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var currentLoggedInUser = (await _userService.GetUserByIdAsync(int.Parse(currentLoggedInUserId!.Value), cancellationToken))!;
 
-            if (currentLoggedInUser.Id == getTodo.OwnerId ||
-                currentLoggedInUser.Roles.Any(r => r.ApplicationUserRole.Name == "Admin"))
-            { 
-                await _todosService.RemoveToDoAsync(id, cancellationToken);
-                return Ok($"Запись с ID = {id} удалена");
-            }
-            return BadRequest($"Запись с ID = {id} не может быть удалена пользователем {currentLoggedInUser.Login}");
-          
+            await _todosService.RemoveToDoAsync(id, cancellationToken);
+            return Ok($"Запись с ID = {id} удалена");
+
         }
        
     }

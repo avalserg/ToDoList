@@ -11,7 +11,7 @@ namespace Todos.Service.Mapping
         {
             CreateMap<UpdateToDoDto, Common.Domain.Todos>();
             CreateMap<CreateTodoDto, Common.Domain.Todos>();
-            CreateMap<ApplicationUser, GetUserDto>();
+            
         }
     }
 }
