@@ -22,10 +22,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common.Api\Common.Api.csproj" />
-    <ProjectReference Include="..\CommonRepositories\Common.Repositories.csproj" />
+    <ProjectReference Include="..\CommonRepositories\Common.Persistence.csproj" />
     <ProjectReference Include="..\Todos.Domain\Todos.Domain.csproj" />
     <ProjectReference Include="..\Todos.Service\Todos.Service.csproj" />
-    <ProjectReference Include="..\Users.Service\Users.Service.csproj" />
   </ItemGroup>
 
 </Project>

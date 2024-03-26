@@ -51,10 +51,10 @@ namespace Todos.Api.Controllers
         public async Task<IActionResult> GetToDoByIdAsync(int id, CancellationToken cancellationToken)
         {
             var getTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
-            if (getTodo == null)
-            {
-                return NotFound($"Запись с ID = {id} отсутствует");
-            }
+            //if (getTodo == null)
+            //{
+            //    return NotFound($"Запись с ID = {id} отсутствует");
+            //}
            
             return Ok(getTodo);
             
@@ -64,12 +64,12 @@ namespace Todos.Api.Controllers
         public async Task<IActionResult> GetToDoByIdIsDoneAsync(int id, CancellationToken cancellationToken)
         {
             var getTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
-            if (getTodo == null)
-            {
-                return NotFound($"Запись с ID = {id} отсутствует");
-            }
+            //if (getTodo == null)
+            //{
+            //    return NotFound($"Запись с ID = {id} отсутствует");
+            //}
          
-            return Ok(new { getTodo.Id, getTodo.IsDone });
+            return Ok(new { getTodo?.Id, getTodo?.IsDone });
             
         }
         
@@ -78,18 +78,18 @@ namespace Todos.Api.Controllers
         {
             var todo = await _todosService.CreateToDoAsync(toDo, cancellationToken);
             
-            return Created($"todos/{todo.Id}", todo);
+            return Created($"todos/{todo?.Id}", todo);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateToDoAsync(int id,UpdateToDoDto updateToDo, CancellationToken cancellationToken)
         {
             updateToDo.Id = id;
-            var updateTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
-            if (updateTodo == null)
-            {
-                return NotFound($"Запись с ID = {id} отсутствует");
-            }
+            //var updateTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
+            //if (updateTodo == null)
+            //{
+            //    return NotFound($"Запись с ID = {id} отсутствует");
+            //}
 
             var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
             return Ok(todo);
@@ -100,25 +100,25 @@ namespace Todos.Api.Controllers
         public async Task<IActionResult> UpdateToDoIsDoneAsync(int id, UpdateToDoDto updateToDo, CancellationToken cancellationToken)
         {
             updateToDo.Id = id;
-            var getTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
-            if (getTodo == null)
-            {
-                return NotFound($"Запись с ID = {id} отсутствует");
-            }
+            //var getTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
+            //if (getTodo == null)
+            //{
+            //    return NotFound($"Запись с ID = {id} отсутствует");
+            //}
 
             var todo = await _todosService.UpdateToDoAsync(updateToDo, cancellationToken);
-            return Ok(new { todo.Id, todo.IsDone });
+            return Ok(new { todo?.Id, todo?.IsDone });
 
         }
 
         [HttpDelete]
         public async Task<IActionResult> RemoveToDoAsync([FromBody]int id, CancellationToken cancellationToken)
         {
-            var getTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
-            if (getTodo == null)
-            {
-                return NotFound($"Запись с ID = {id} отсутствует");
-            }
+            //var getTodo = await _todosService.GetToDoByIdAsync(id, cancellationToken);
+            //if (getTodo == null)
+            //{
+            //    return NotFound($"Запись с ID = {id} отсутствует");
+            //}
 
             await _todosService.RemoveToDoAsync(id, cancellationToken);
             return Ok($"Запись с ID = {id} удалена");

@@ -65,7 +65,8 @@ namespace Todos.Service
 
             if (todo == null)
             {
-                return default;
+                Log.Error($"Todo {todo.Id} does not exist");
+                throw new NotFoundException();
             }
 
             var currentLoggedInUserId = _currentUserSerice.CurrentUserId;
@@ -73,7 +74,8 @@ namespace Todos.Service
 
             if (currentLoggedInUserRoles.Any(r => r != "Admin")&&todo.OwnerId.ToString()!=currentLoggedInUserId)
             {
-                return default;
+                Log.Error($"Access denied to Todo {todo.Id} by current user");
+                throw new ForbiddenExceptions();
             }
             return todo;
         }
@@ -109,7 +111,7 @@ namespace Todos.Service
             if (ownerTodo is null)
             {
                 Log.Error($"User {todoEntity.OwnerId} does not exist");
-                throw new BadRequestException();
+                throw new ForbiddenExceptions();
             }
 
             var currentLoggedInUserId = _currentUserSerice.CurrentUserId;
@@ -160,7 +162,7 @@ namespace Todos.Service
             if (currentLoggedInUserRoles.Any(r => r != "Admin") && todoToRemove.OwnerId.ToString() != currentLoggedInUserId)
             {
                 Log.Error($"Todos {todoToRemove.Id} cannot be deleted by User");
-                throw new BadRequestException();
+                throw new ForbiddenExceptions();
             }
             Log.Information($"Todo with id={id} was deleted");
             

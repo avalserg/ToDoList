@@ -1,11 +1,11 @@
 using System.Text;
-using Common.Repositories.Context;
 using FluentValidation.AspNetCore;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 using System.Text.Json.Serialization;
 using Common.Api;
+using Common.Persistence.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Todos.Service.DI;

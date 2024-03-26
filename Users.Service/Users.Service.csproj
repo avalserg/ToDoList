@@ -15,10 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Authorization.Service\Authorization.Service.csproj" />
     <ProjectReference Include="..\Common.Domain\Common.Domain.csproj" />
-    <ProjectReference Include="..\Common.Service\Common.Service.csproj" />
-    <ProjectReference Include="..\CommonRepositories\Common.Repositories.csproj" />
+    <ProjectReference Include="..\CommonRepositories\Common.Persistence.csproj" />
+    <ProjectReference Include="..\Users.Application\Users.Application.csproj" />
   </ItemGroup>
 
 </Project>

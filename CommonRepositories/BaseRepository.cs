@@ -1,8 +1,9 @@
-using Common.Repositories.Context;
 using System.Linq.Expressions;
+using Common.Application.Abstractions.Persistence;
+using Common.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.Repositories;
+namespace Common.Persistence;
 
 public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class, new() 
 {

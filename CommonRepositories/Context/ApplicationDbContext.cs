@@ -1,7 +1,7 @@
 ﻿using Common.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.Repositories.Context
+namespace Common.Persistence.Context
 {
     public class ApplicationDbContext:DbContext
     {

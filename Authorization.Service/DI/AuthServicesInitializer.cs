@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using Authorization.Service.Mapping;
+using Common.Application.Abstractions.Persistence;
 using Common.Domain;
+using Common.Persistence;
 using Common.Repositories;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Common.Domain;
 using Todos.Service.Dto;
-using Users.Service.Dto;
 
 namespace Todos.Service.Mapping
 {

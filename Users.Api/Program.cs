@@ -1,16 +1,15 @@
-using System.Text;
-using Common.Repositories.Context;
-using FluentValidation.AspNetCore;
-using Serilog.Events;
-using Serilog;
-using Serilog.Formatting.Compact;
-using Users.Service.DI;
-using System.Text.Json.Serialization;
 using Common.Api;
+using Common.Application;
+using Common.Persistence.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Builder;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
+using System.Text;
+using System.Text.Json.Serialization;
+using Users.Application;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -79,11 +78,12 @@ try
             }
         });
     });
-    builder.Services.InitializeRepositories();
-    builder.Services.InitializeServices();
-    builder.Services.AddAutoMapperService();
-    builder.Services.AddValidationService();
-    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddCommonApplicationExtensions();
+    builder.Services.InitializeUserServices();
+    builder.Services.AddMediatRService();
+    builder.Services.AddAutoMapperUserService();
+    builder.Services.AddCacheService();
+    builder.Services.AddValidationUserService();
     builder.Services.AddTodosDatabase(builder.Configuration);
 
    

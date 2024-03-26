@@ -1,15 +1,14 @@
-using System.Text;
-using Common.Repositories.Context;
-using FluentValidation.AspNetCore;
-using Serilog.Events;
-using Serilog;
-using Serilog.Formatting.Compact;
-using System.Text.Json.Serialization;
-using Authorization.Service.DI;
+using Auth.Application;
 using Common.Api;
+using Common.Persistence.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
+using System.Text;
+using System.Text.Json.Serialization;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -79,13 +78,10 @@ try
             }
         });
     });
-    builder.Services.InitializeRepositories();
-    builder.Services.InitializeServices();
-    //builder.Services.AddAutoMapperService();
-    builder.Services.AddValidationService();
-    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.InitializeAuthRepositories();
+    builder.Services.AddValidationAuthService();
     builder.Services.AddTodosDatabase(builder.Configuration);
-
+    builder.Services.AddMediatRService();
 
 
     builder.Host.UseSerilog();

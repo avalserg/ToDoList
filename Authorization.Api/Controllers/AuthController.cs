@@ -1,5 +1,7 @@
-﻿using Authorization.Service;
-using Authorization.Service.Dtos;
+﻿using Auth.Application;
+using Auth.Application.Command.CreateJwtToken;
+using Auth.Application.Command.CreateJwtTokenByRefreshToken;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,27 +10,27 @@ namespace Authorization.Api.Controllers
     [Authorize]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthUserService _authUserService;
         
+        private readonly IMediator _mediator;
 
-        public AuthController(IAuthUserService authUserService)
+
+        public AuthController(IMediator mediator )
         {
-            _authUserService = authUserService;
-           
+           _mediator = mediator;
         }
         [AllowAnonymous]
         [HttpPost("CreateJwtToken")]
-        public async Task<IActionResult> CreateJwtToken(AuthUserDto authUserDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateJwtTokenAsync(CreateJwtTokenCommand createJwtTokenCommand , CancellationToken cancellationToken)
         {
-            var createdToken = await _authUserService.GetJwtTokenAsync(authUserDto, cancellationToken);
+            var createdToken = await _mediator.Send(createJwtTokenCommand, cancellationToken);
             return Ok(createdToken);
 
         }
         [AllowAnonymous]
         [HttpPost("CreateJwtTokenByRefreshToken")]
-        public async Task<IActionResult> CreateJwtTokenByRefreshToken(string refreshToken, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateJwtTokenByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
         {
-            var createdToken = await _authUserService.GetJwtTokenByRefreshTokenAsync(refreshToken, cancellationToken);
+            var createdToken = await _mediator.Send(new CreateJwtTokenByRefreshTokenCommand(){RefreshToken = refreshToken}, cancellationToken);
             return Ok(createdToken);
 
         }

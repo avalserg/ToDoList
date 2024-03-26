@@ -1,6 +1,7 @@
-﻿using Common.Domain;
-using Common.Repositories;
-using Common.Service;
+﻿using Common.Api.Service;
+using Common.Application.Abstractions.Persistence;
+using Common.Domain;
+using Common.Persistence;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;

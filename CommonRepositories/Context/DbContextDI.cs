@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.Application.Abstractions.Persistence;
+using Common.Domain;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Common.Repositories.Context
+namespace Common.Persistence.Context
 {
     public static class DbContextDi
     {
@@ -14,6 +16,9 @@ namespace Common.Repositories.Context
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
                 }
             );
+            services.AddTransient<IContextTransactionCreator, ContextTransactionCreator>();
+            services.AddTransient<IBaseRepository<ApplicationUser>, BaseRepository<ApplicationUser>>();
+            services.AddTransient<IBaseRepository<ApplicationUserRole>, BaseRepository<ApplicationUserRole>>();
             return services;
         }
     }

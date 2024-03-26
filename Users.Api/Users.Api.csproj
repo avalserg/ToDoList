@@ -22,7 +22,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common.Api\Common.Api.csproj" />
-    <ProjectReference Include="..\Users.Service\Users.Service.csproj" />
+    <ProjectReference Include="..\CommonRepositories\Common.Persistence.csproj" />
+    <ProjectReference Include="..\Users.Application\Users.Application.csproj" />
   </ItemGroup>
 
 </Project>
